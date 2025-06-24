@@ -1,0 +1,77 @@
+<?php
+
+include __DIR__ . '/../config/config.php';
+
+use Models\User;
+use Models\Session;
+use Models\Activity;
+use Carbon\Carbon;
+use GuzzleHttp\Client;
+
+
+
+if (!isset($_POST['username'], $_POST['password'])) {
+  http_response_code(404);
+  die;
+}
+
+$attempt = 0;
+$max_attempt = 5;
+
+$username = filter_var($_POST['username'], FILTER_SANITIZE_STRING);
+$password = $_POST['password'];
+
+$user = User::where('username', '=', $username)->orWhere('email', $username)->where('is_deleted', 0)->first();
+
+if (!$user) {
+  echo json_encode(['status' => 'error', 'message' => 'Invalid username or password.']);
+  return;
+}
+
+// if ($user->login_attempt >= $max_attempt) {
+//   $expiration = Carbon::parse($user->updated_at)->addMinutes(5);
+
+//   if (now() > $expiration) {
+//     $user->login_attempt = 0;
+//     $user->save();
+//   }
+
+//   $expiration = $expiration->format('h:i A');
+
+//   echo json_encode([
+//     'status' => 'error',
+//     'message' => "Your account is temporarily locked. You can try again after $expiration."
+//   ]);
+
+//   return;
+// }
+
+
+if (!password_verify($password, $user->password)) {
+  $user->login_attempt = $user->login_attempt + 1;
+  $user->save();
+  $current_attempt_left = $max_attempt - $user->login_attempt;
+
+  echo json_encode(['status' => 'error', 'message' => "Invalid username or password."]);
+  return;
+}
+
+
+
+if (session_status() == PHP_SESSION_NONE) {
+  session_start();
+}
+
+$generated_token = md5(random_bytes(10));
+$session = new Session();
+$session->user_id = $user->user_id;
+$session->token = $generated_token;
+
+$datetime = date('m/d/Y h:i A');
+Activity::addActivityLog('login', "logged in $datetime", $user->user_id);
+
+$session->save();
+
+$_SESSION['SESSION_TOKEN'] = $generated_token;
+$_SESSION['SESSION_KEY'] = base64_encode(random_bytes(1000));
+echo json_encode(['status' => 'success', 'message' => 'Invalid username or password.']);

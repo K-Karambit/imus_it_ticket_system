@@ -1,0 +1,10 @@
+RewriteEngine On
+
+# Prevent rewriting of actual directories
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Ensure that a .php file exists
+RewriteCond %{REQUEST_FILENAME}\.php -f
+
+# Rewriting rule: Append .php if it exists
+RewriteRule ^([^/]+)/?$ $1.php [L]
