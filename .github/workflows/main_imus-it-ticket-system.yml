@@ -1,3 +1,6 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
 name: Build and deploy PHP app to Azure Web App - imus-it-ticket-system
 
 on:
@@ -20,12 +23,12 @@ jobs:
         with:
           php-version: '8.4'
 
-      # Uncomment this section if you use composer and are not committing vendor/
       # - name: Check if composer.json exists
       #   id: check_files
       #   uses: andstor/file-existence-action@v1
       #   with:
       #     files: 'composer.json'
+
       # - name: Run composer install if composer.json exists
       #   if: steps.check_files.outputs.files_exists == 'true'
       #   run: composer validate --no-check-publish && composer install --prefer-dist --no-progress
@@ -42,15 +45,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
-
+    
+    
     steps:
-      # --- ADD THIS AZURE LOGIN STEP ---
-      - name: Azure Login
-        uses: azure/login@v1 # Or @v2 if you prefer
-        with:
-          creds: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_8FF3D452A0BC49C4A9E65E73085AF2FDy }} # Reference the secret you created
-      # ----------------------------------
-
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
@@ -58,11 +55,7 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-
-      # Add this if you have a startup.sh script
-      - name: Make startup script executable
-        run: chmod +x startup.sh 
-
+      
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
@@ -70,11 +63,4 @@ jobs:
           app-name: 'imus-it-ticket-system'
           slot-name: 'Production'
           package: .
-          # You can often remove publish-profile if you use azure/login.
-          # However, if your publish-profile secret is still needed for other reasons
-          # or if the webapps-deploy action strictly requires it alongside azure/login,
-          # you can keep it. Test without it first for cleaner setup.
-          # publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_8FF3D452A0BC49C4A9E65E73085AF2FD }}
-
-          # Add this if you are using a startup.sh script for custom Nginx config
-          startupCommand: /home/site/wwwroot/startup.sh
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_8FF3D452A0BC49C4A9E65E73085AF2FD }}
