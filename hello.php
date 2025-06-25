@@ -1,3 +1,4 @@
 <?php
 
 echo "Hello, World! This is a simple PHP script.";
+echo __DIR__ ;
