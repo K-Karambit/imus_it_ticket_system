@@ -1,6 +1,8 @@
 <?php
 
 include __DIR__ . '/../config/config.php';
+include __DIR__ . '/../constants.php';
+
 
 
 if (session_status() == PHP_SESSION_NONE) {
@@ -11,14 +13,14 @@ use Models\User;
 use Models\Activity;
 use Models\Session;
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
-$dotenv->load();
+// $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+// $dotenv->load();
 
-$clientId = $_ENV['AZURE_APP_ID'];
-$clientSecret = $_ENV['AZURE_CLIENT_SECRET'];
-$redirectUri = $_ENV['AZURE_REDIRECT_URI'];
-$tenantId = $_ENV['AZURE_TENANT_ID'];
-$scopes = explode(' ', $_ENV['AZURE_GRAPH_SCOPES']);
+$clientId = AZURE_APP_ID;
+$clientSecret =  AZURE_CLIENT_SECRET;
+$redirectUri =  AZURE_REDIRECT_URI;
+$tenantId =   AZURE_TENANT_ID;
+$scopes = explode(' ',  AZURE_GRAPH_SCOPES); // Convert space-separated string to array
 
 // Create the OAuth 2.0 provider
 $provider = new \League\OAuth2\Client\Provider\GenericProvider([
