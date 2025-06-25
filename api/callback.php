@@ -62,7 +62,7 @@ if (isset($_GET['code'])) {
         $user = User::where('email', $userData['userPrincipalName'] ?? null)->where('is_deleted', 0)->first();
 
         if (!$user) {
-            header('Location: ../index.php?microsoftErrorMessage=Invalid username or password.');
+            header('Location: ../index.php?microsoftErrorMessage=No account found.');
             exit();
         }
 
