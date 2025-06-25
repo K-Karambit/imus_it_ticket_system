@@ -48,7 +48,7 @@ jobs:
       - name: Azure Login
         uses: azure/login@v1 # Or @v2 if you prefer
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }} # Reference the secret you created
+          creds: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_8FF3D452A0BC49C4A9E65E73085AF2FDy }} # Reference the secret you created
       # ----------------------------------
 
       - name: Download artifact from build job
