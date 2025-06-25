@@ -78,7 +78,7 @@
   checkSession();
   setInterval(function() {
     checkSession();
-  }, 5000);
+  },  60000); // Check session every 60 seconds
 </script>
 
 
