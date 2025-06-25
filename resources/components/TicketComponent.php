@@ -353,7 +353,7 @@
                 })
             },
             fetchUsers() {
-                fetch('<?= $api ?>/user?action=all', {
+                fetch('<?= $api ?>/user.php?action=all', {
                     method: 'GET',
                     headers: {
                         "X-API-Key": "<?= $api_key ?>"
