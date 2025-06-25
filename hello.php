@@ -1,5 +1,5 @@
 <?php
 
 
-echo environment('AZURE_APP_ID') . "\n";
-echo environment('AZURE_CLIENT_SECRET') . "\n"; 
+echo $_ENV('AZURE_APP_ID') . "\n";
+echo $_ENV('AZURE_CLIENT_SECRET') . "\n"; 
