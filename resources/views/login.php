@@ -60,14 +60,14 @@
           </div>
         </form>
 
-        <div class="text-center p-t-50" hidden>
+        <div class="text-center p-t-50">
           <span class="txt1">
             Or sign in with
           </span>
         </div>
 
         <div class="container-login100-form-btn m-t-15">
-          <a href="api/microsoft_login.php" class="login100-form-btn" style="background-color: #fff; display: flex; align-items: center; justify-content: center; color:#000;">
+          <a href="/api/microsoft_login.php" class="login100-form-btn" style="background-color: #fff; display: flex; align-items: center; justify-content: center; color:#000;">
             <img src="https://logolook.net/wp-content/uploads/2023/09/Microsoft-Azure-Logo.png" alt="Microsoft Logo" style="height: 24px; margin-right: 10px;">
             Sign In with Microsoft
           </a>
