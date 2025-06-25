@@ -26,7 +26,7 @@ $capsule->addConnection([
     'options'   => [
         // Path to your Azure MySQL CA certificate on the server
         // Ensure this path is correct and accessible by your web app!
-        PDO::MYSQL_ATTR_SSL_CA => __DIR__ . '/config/DigiCertGlobalRootCA.crt.pem'
+        PDO::MYSQL_ATTR_SSL_CA => __DIR__ . '/DigiCertGlobalRootCA.crt.pem'
     ],
 ]);
 
