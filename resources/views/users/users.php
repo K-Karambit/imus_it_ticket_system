@@ -260,7 +260,7 @@
     },
     methods: {
       fetchUsers() {
-        fetch('<?= $api ?>/user?action=all', {
+        fetch('<?= $api ?>/user.php?action=all', {
           method: 'GET',
           headers: {
             "X-API-Key": "<?= $api_key ?>"
@@ -295,7 +295,7 @@
 
         const formData = new FormData(document.getElementById('addUserForm'));
         formData.append('password', this.new_password);
-        fetch('api/user?action=add', {
+        fetch('api/user.php?action=add', {
           method: 'post',
           body: formData,
           headers: {
@@ -339,7 +339,7 @@
         })
       },
       fetchRoles() {
-        fetch('<?= $api ?>/role?action=all', {
+        fetch('<?= $api ?>/role.php?action=all', {
           method: 'GET',
           headers: {
             "X-API-Key": "<?= $api_key ?>"
@@ -401,7 +401,7 @@
         window.open(url);
       },
       fetchGroups() {
-        fetch('<?= $api ?>/groups?action=all', {
+        fetch('<?= $api ?>/groups.php?action=all', {
           method: 'GET',
           headers: {
             "X-API-Key": "<?= $api_key ?>"

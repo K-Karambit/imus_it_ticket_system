@@ -2,13 +2,25 @@
 
 include __DIR__ . '/../config/config.php';
 
+header("Access-Control-Allow-Origin:  *");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header('Access-Control-Allow-Headers: X-Requested-With, Content-Type, Accept');
+header("Content-Type: application/json;");
+header("X-Frame-Options: DENY");
+header("X-Content-Type-Options: nosniff");
+header("X-XSS-Protection: 1; mode=block");
+header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
+header("Content-Security-Policy: default-src 'none'; frame-ancestors 'none'; script-src 'self'; connect-src 'self'");
+header("Referrer-Policy: no-referrer");
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Pragma: no-cache");
+header("Expires: 0");
+
 use Models\User;
 use Models\Session;
 use Models\Activity;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
-
-
 
 if (!isset($_POST['username'], $_POST['password'])) {
   http_response_code(404);
@@ -74,4 +86,4 @@ $session->save();
 
 $_SESSION['SESSION_TOKEN'] = $generated_token;
 $_SESSION['SESSION_KEY'] = base64_encode(random_bytes(1000));
-echo json_encode(['status' => 'success', 'message' => 'Invalid username or password.']);
+echo json_encode(['status' => 'success', 'message' => 'Welcome back!', 'token' => $generated_token, 'user' => $user->toArray()]);

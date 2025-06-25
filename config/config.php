@@ -20,6 +20,8 @@ $capsule->addConnection([
     'charset' => 'utf8',
     'collation' => 'utf8_unicode_ci',
     'prefix' => '',
+    'port' => DB_PORT, // Default MySQL port
+    'sslmode' => 'REQUIRED', // Use PREFERRED for Azure MySQL
 ]);
 
 $capsule->setAsGlobal();

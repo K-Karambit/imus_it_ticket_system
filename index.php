@@ -1,28 +1,20 @@
 <?php
 
-// declare(strict_types=1);
+declare(strict_types=1);
 
-require __DIR__ . '/config/config.php';
+include __DIR__ . '/config/config.php';
 
 use Models\Session;
 use Models\CMS;
 use Models\Permission;
 use Models\Helper;
 
-
-
 $api_key = base64_encode(password_hash('joshbakla', PASSWORD_DEFAULT));
 $api = API;
-
-
-
 
 $session_user = Session::session_user();
 $page_info = CMS::where('id', 1)->first();
 $helper = new Helper();
-
-
-
 
 
 function permission(string $module, string $access, string $role): bool

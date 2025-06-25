@@ -63,4 +63,4 @@ jobs:
           app-name: 'imus-it-ticket-system'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_8FF3D452A0BC49C4A9E65E73085AF2FD }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}

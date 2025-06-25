@@ -6,6 +6,7 @@
 
 use Illuminate\Support\Facades\Hash;
 
+header("Access-Control-Allow-Origin:  *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header('Access-Control-Allow-Headers: X-Requested-With, Content-Type, Accept');
 header("Content-Type: application/json;");
@@ -15,7 +16,6 @@ header("X-XSS-Protection: 1; mode=block");
 header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
 header("Content-Security-Policy: default-src 'none'; frame-ancestors 'none'; script-src 'self'; connect-src 'self'");
 header("Referrer-Policy: no-referrer");
-header("Permissions-Policy: geolocation=(), microphone=(), camera=()");
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
 header("Expires: 0");
