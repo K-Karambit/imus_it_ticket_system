@@ -1,5 +1,3 @@
 <?php
-
-
-echo $_ENV('AZURE_APP_ID') . "\n";
-echo $_ENV('AZURE_CLIENT_SECRET') . "\n"; 
+echo "Hello, World! This is a simple PHP script. <br />";
+echo __DIR__ ;

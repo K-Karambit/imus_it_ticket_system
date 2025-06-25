@@ -1,15 +1,16 @@
 <?php
 require __DIR__ . '/../vendor/autoload.php';
+include __DIR__ . '/../constants.php';
 
 // Load environment variables
 // $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 // $dotenv->load();
 
-$clientId = getenv['AZURE_APP_ID'];
-$clientSecret = getenv['AZURE_CLIENT_SECRET'];
-$redirectUri = getenv['AZURE_REDIRECT_URI'];
-$tenantId = getenv['AZURE_TENANT_ID'];
-$scopes = explode(' ', getenv['AZURE_GRAPH_SCOPES']); // Convert space-separated string to array
+$clientId = AZURE_APP_ID; // Use the constant defined in constants.php
+$clientSecret = AZURE_CLIENT_SECRET; // Use the constant defined in constants.php
+$redirectUri =  AZURE_REDIRECT_URI; // Use the constant defined in constants.php
+$tenantId =  AZURE_TENANT_ID; // Use the constant defined in constants.php
+$scopes = explode(' ', AZURE_GRAPH_SCOPES); // Convert space-separated string to array
 
 // Create the OAuth provider
 $provider = new \League\OAuth2\Client\Provider\GenericProvider([
