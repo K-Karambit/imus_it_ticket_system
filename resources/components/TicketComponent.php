@@ -144,7 +144,7 @@
                     <table id="tickets-data" class="table table-bordered table-striped table-hover">
                         <thead>
                             <tr>
-                                <th>#</th>
+                                <!-- <th>#</th> -->
                                 <th>ID</th>
                                 <th>Category</th>
                                 <th>Short Description</th>
@@ -157,7 +157,7 @@
                         </thead>
                         <tbody>
                             <tr v-for="(ticket, index) in tickets" :key="ticket.id" @click.prevent="ticketDetails(index)" style="cursor: pointer;">
-                                <td>{{ index + 1 }}</td>
+                                <!-- <td>{{ index + 1 }}</td> -->
                                 <td>{{ ticket.ticket_id }}</td>
                                 <td>{{ ticket.category_name }}</td>
                                 <td class="limit-lines" v-html="ticket.short_description"></td>

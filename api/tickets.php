@@ -218,7 +218,7 @@ if ($_GET['action'] === 'export') {
     $results = $ticket->get();
 
     // Prepare data for Excel
-    $data = [['ID', 'Created By', 'Assigned To', 'Category', 'Urgency', 'Short Description', 'Description', 'Department', 'History']]; // Headers
+    $data = [['ID', 'Created By', 'Assigned To', 'Category', 'Urgency', 'Short Description', 'Description', 'Department', 'Status', 'History']]; // Headers
     foreach ($results as $ticket) {
         $data[] = [
             $ticket->ticket_id,
@@ -229,6 +229,7 @@ if ($_GET['action'] === 'export') {
             $ticket->short_description,
             $ticket->description,
             $ticket->department_name,
+            $ticket->status,
             $ticket->ticket_states,
         ];
     }
