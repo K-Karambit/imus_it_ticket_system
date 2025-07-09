@@ -69,10 +69,9 @@
         <div class="container-login100-form-btn m-t-15">
           <a href="/api/microsoft_login.php" class="login100-form-btn" style="background-color: #fff; display: flex; align-items: center; justify-content: center; color:#000;">
             <img src="https://logolook.net/wp-content/uploads/2023/09/Microsoft-Azure-Logo.png" alt="Microsoft Logo" style="height: 24px; margin-right: 10px;">
-            Sign In with Microsoft
+            Microsoft Account
           </a>
         </div>
-
       </div>
     </div>
   </div>
