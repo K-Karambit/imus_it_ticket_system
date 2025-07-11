@@ -93,10 +93,12 @@ if ($action === 'update') {
         }
 
         if (isset($_FILES['profile']) && $_FILES['profile']['name']) {
-            $file            = $_FILES['profile'];
-            $file_ext        = pathinfo($file['name'], PATHINFO_EXTENSION);
-            $file_name       = date('YmdHis') . time() . '.' . $file_ext;
-            $current_profile = $helper->storage_path($session->session_user()->profile);
+            $file      = $_FILES['profile'];
+            $file_ext  = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $file_name = date('YmdHis') . time() . '.' . $file_ext;
+
+            $storage_path    = ROOT . '/api/storage';
+            $current_profile = "$storage_path/$user->profile";
 
             if (file_exists($current_profile) && ! empty($session->session_user()->profile)) {
                 unlink($current_profile);
@@ -106,8 +108,6 @@ if ($action === 'update') {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid file format.']);
                 return;
             }
-
-            $storage_path = ROOT . '/api/storage';
 
             $move = move_uploaded_file($file['tmp_name'], "$storage_path/$file_name");
 
@@ -194,18 +194,11 @@ if ($action === 'add') {
         $user = new User();
 
         if (isset($_FILES['profile']) && $_FILES['profile']['name']) {
-            $file      = $_FILES['profile'];
-            $file_ext  = pathinfo($file['name'], PATHINFO_EXTENSION);
-            $file_name = date('YmdHis') . time() . '.' . $file_ext;
-
-            $storage_path    = ROOT . '/api/storage';
-            $current_profile = "$storage_path/" . $session->session_user()->profile;
-
-            if (file_exists($current_profile) && ! empty($session->session_user()->profile)) {
-                unlink($current_profile);
-            }
-
-            $move = move_uploaded_file($file['tmp_name'], "$storage_path/$file_name");
+            $file            = $_FILES['profile'];
+            $file_ext        = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $file_name       = date('YmdHis') . time() . '.' . $file_ext;
+            $current_profile = $helper->storage_path($session->session_user()->profile);
+            $move            = move_uploaded_file($file['tmp_name'], $helper->storage_path() . '/' . $file_name);
 
             if (! in_array(strtolower($file_ext), $imageExtensions)) {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid file format.']);
