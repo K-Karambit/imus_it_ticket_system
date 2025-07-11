@@ -13,7 +13,7 @@
 
 
         <div class="mt-3">
-            <?php if (permission('users', 'w', $session_user->role)) : ?>
+            <?php if (permission('users', 'w', $session_user->role)): ?>
                 <button
                     type="button"
                     permission="write"
@@ -23,7 +23,7 @@
                     <i class="fas fa-edit"></i> Edit
                 </button>
             <?php endif; ?>
-            <?php if (permission('users', 'd', $session_user->role)) : ?>
+<?php if (permission('users', 'd', $session_user->role)): ?>
                 <button permission="delete" @click.prevent="deleteUser" type="button" permission="delete" class="btn btn-danger">
                     <i class="fas fa-trash"></i>
                     Delete
@@ -96,7 +96,7 @@
                                     </div>
 
 
-                                    <?php if ($session_user->role == '1') : ?>
+                                    <?php if ($session_user->role == '1'): ?>
                                         <div class="col-md-6 mt-3">
                                             <label for="phone" class="form-label">Role <span class="text-danger">*</span></label>
                                             <select class="form-control" name="role" id="role" v-model="role" required>
@@ -107,7 +107,7 @@
                                     <?php endif; ?>
 
 
-                                    <?php if ($session_user->role == '1') : ?>
+                                    <?php if ($session_user->role == '1'): ?>
                                         <div class="col-md-6 mt-3">
                                             <label for="phone" class="form-label">Group <span class="text-danger">*</span></label>
                                             <select class="form-control" name="group_id" id="group_id" v-model="group_id" required>
@@ -118,7 +118,7 @@
                                     <?php endif; ?>
 
 
-                                    <?php if ($session_user->role == '1') : ?>
+                                    <?php if ($session_user->role == '1'): ?>
                                         <div class="col-md-6 mt-3">
                                             <label for="phone" class="form-label">Status <span class="text-danger">*</span></label>
                                             <select class="form-control" name="status" id="status" v-model="status" required>
@@ -148,12 +148,12 @@
                             <div class="card-body">
                                 <div class="row g-3">
 
-                                    <?php if ($session_user->role != 1):  ?>
+                                    <?php if ($session_user->role != 1): ?>
                                         <div class="col-md-6 mt-1">
                                             <label for="current_password" class="form-label">Current Password <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" name="current_password" id="current_password" required />
                                         </div>
-                                    <?php endif;  ?>
+                                    <?php endif; ?>
 
                                     <div class="col-md-6 mt-1">
                                         <label for="new_password" class="form-label">New Password <span class="text-danger">*</span></label>
@@ -218,13 +218,13 @@
         methods: {
             fetchProfileInformation() {
                 const params = new URLSearchParams(window.location.search);
-                const id = params.get('id') ?? '<?= $session_user->user_id ?>';
+                const id = params.get('id') ?? '<?php echo $session_user->user_id ?>';
                 this.userId = id;
 
                 fetch('api/user.php?action=one&id=' + id, {
                     method: 'GET',
                     headers: {
-                        "X-API-Key": "<?= $api_key ?>"
+                        "X-API-Key": "<?php echo $api_key ?>"
                     }
                 }).then(res => res.json()).then(data => {
                     this.data = data;
@@ -249,11 +249,12 @@
                 this.loading();
                 const formData = new FormData(document.getElementById('updateUserProfileForm'));
                 formData.append('user_id', this.data.user_id);
-                fetch('<?= $api ?>/user.php?action=update', {
+                fetch('<?php echo $api ?>user.php?action=update', {
                     method: 'post',
                     body: formData,
                     headers: {
-                        "X-API-Key": "<?= $api_key ?>"
+                        "Content-Type": "multipart/form-data",
+                        "X-API-Key": "<?php echo $api_key ?>"
                     }
                 }).then(res => res.json()).then(data => {
                     this.loading(false);
@@ -281,11 +282,11 @@
                 const formData = new FormData(document.getElementById('updatePasswordForm'));
                 formData.append('user_id', this.data.user_id);
                 formData.append('password', this.confirm_password);
-                fetch('<?= $api ?>/user.php?action=update_password', {
+                fetch('<?php echo $api ?>/user.php?action=update_password', {
                     method: 'post',
                     body: formData,
                     headers: {
-                        "X-API-Key": "<?= $api_key ?>"
+                        "X-API-Key": "<?php echo $api_key ?>"
                     }
                 }).then(res => res.json()).then(data => {
                     this.loading(false);
@@ -306,11 +307,11 @@
                 }
                 const formData = new FormData();
                 formData.append('user_id', this.data.user_id);
-                fetch('<?= $api ?>/user.php?action=delete', {
+                fetch('<?php echo $api ?>/user.php?action=delete', {
                     method: 'post',
                     body: formData,
                     headers: {
-                        "X-API-Key": "<?= $api_key ?>"
+                        "X-API-Key": "<?php echo $api_key ?>"
                     }
                 }).then(res => res.json()).then(data => {
                     if (data.status === 'success') {
@@ -333,10 +334,10 @@
                 })
             },
             fetchRoles() {
-                fetch('<?= $api ?>/role.php?action=all', {
+                fetch('<?php echo $api ?>/role.php?action=all', {
                     method: 'GET',
                     headers: {
-                        "X-API-Key": "<?= $api_key ?>"
+                        "X-API-Key": "<?php echo $api_key ?>"
                     }
                 }).then(res => res.json()).then(data => {
                     this.roles = data;
@@ -369,10 +370,10 @@
                 }
             },
             fetchGroups() {
-                fetch('<?= $api ?>/groups.php?action=all', {
+                fetch('<?php echo $api ?>/groups.php?action=all', {
                     method: 'GET',
                     headers: {
-                        "X-API-Key": "<?= $api_key ?>"
+                        "X-API-Key": "<?php echo $api_key ?>"
                     }
                 }).then(res => res.json()).then(data => {
                     this.groups = data;
