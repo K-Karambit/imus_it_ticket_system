@@ -42,6 +42,10 @@ jobs:
           name: php-app
           path: release.zip
 
+      - name: Give write permission to storage and bootstrap/cache
+        run: |
+          chmod -R 777 api/storage
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
