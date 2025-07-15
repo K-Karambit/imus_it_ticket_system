@@ -44,7 +44,7 @@ jobs:
 
       - name: Give write permission to storage and bootstrap/cache
         run: |
-          chmod -R 777 api
+          chmod -R 777 api/storage
 
   deploy:
     runs-on: ubuntu-latest
