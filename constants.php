@@ -1,6 +1,6 @@
 <?php
 
-define('ROOT',  __DIR__);
+define('ROOT',  $_SERVER['DOCUMENT_ROOT']);
 
 define('AZURE_APP_ID', 'abfed74c-1e74-4e39-972b-3fe0e9568db3');
 define('AZURE_CLIENT_SECRET', 'jCt8Q~KDn_AvAitZekzlzK_qg472kC5EuXxnUbQ-');
