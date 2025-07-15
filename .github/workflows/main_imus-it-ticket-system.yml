@@ -42,9 +42,9 @@ jobs:
           name: php-app
           path: release.zip
 
-      - name: Give write permission to storage and bootstrap/cache
-        run: |
-          chmod -R 775 /home/site/wwwroot/api/storage
+      # - name: Give write permission to storage and bootstrap/cache
+      #   run: |
+      #     chmod -R 775 /home/site/wwwroot/api/storage
 
   deploy:
     runs-on: ubuntu-latest
