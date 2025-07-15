@@ -93,29 +93,38 @@ if ($action === 'update') {
         }
 
         if (isset($_FILES['profile']) && $_FILES['profile']['name']) {
-            $file      = $_FILES['profile'];
-            $file_ext  = pathinfo($file['name'], PATHINFO_EXTENSION);
-            $file_name = date('YmdHis') . time() . '.' . $file_ext;
+            $file         = $_FILES['profile'];
+            $file_ext     = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $file_name    = date('YmdHis') . time() . '.' . $file_ext;
 
-            $storage_path    = __DIR__ . "/api/storage";
-            $current_profile = "$storage_path/$user->profile";
+            $storage_path = __DIR__ . "/storage";
 
-            if (file_exists($current_profile) && ! empty($session->session_user()->profile)) {
-                unlink($current_profile);
-            }
-
-            if (! in_array(strtolower($file_ext), $imageExtensions)) {
+            if (!in_array(strtolower($file_ext), $imageExtensions)) {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid file format.']);
                 return;
+            }
+
+            if (!is_dir($storage_path)) {
+                mkdir($storage_path, 0775, true);
+            }
+
+            $current_profile = "$storage_path/{$user->profile}";
+
+            if (file_exists($current_profile) && !empty($user->profile)) {
+                unlink($current_profile);
             }
 
             $move = move_uploaded_file($file['tmp_name'], "$storage_path/$file_name");
 
             if ($move) {
-                $user->profile = $file_name;
-                $activity->addActivityLog('user', "set new profle for $user->full_name");
+                $user->profile = 'storage/' . $file_name; // optional: store relative path
+                $activity->addActivityLog('user', "set new profile for $user->full_name");
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Failed to move uploaded file.']);
+                return;
             }
         }
+
 
         $user->fill($_POST);
         $user->save();
@@ -197,18 +206,27 @@ if ($action === 'add') {
             $file         = $_FILES['profile'];
             $file_ext     = pathinfo($file['name'], PATHINFO_EXTENSION);
             $file_name    = date('YmdHis') . time() . '.' . $file_ext;
-            $storage_path    = __DIR__ . "/api/storage";
-            $move         = move_uploaded_file($file['tmp_name'], "$storage_path/$file_name");
+            $storage_path = __DIR__ . "/storage"; // FIXED PATH
 
-            if (! in_array(strtolower($file_ext), $imageExtensions)) {
+            if (!is_dir($storage_path)) {
+                mkdir($storage_path, 0775, true); // Make folder if it doesn't exist
+            }
+
+            if (!in_array(strtolower($file_ext), $imageExtensions)) {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid file format.']);
                 return;
             }
 
+            $move = move_uploaded_file($file['tmp_name'], "$storage_path/$file_name");
+
             if ($move) {
-                $user->profile = $file_name;
+                $user->profile = 'storage/' . $file_name; // Relative path
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Failed to move uploaded file.']);
+                return;
             }
         }
+
 
         $user->fill($_POST);
         $user->group_id = $session->group_id;
