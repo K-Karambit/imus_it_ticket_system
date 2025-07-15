@@ -23,7 +23,7 @@
                     <i class="fas fa-edit"></i> Edit
                 </button>
             <?php endif; ?>
-<?php if (permission('users', 'd', $session_user->role)): ?>
+            <?php if (permission('users', 'd', $session_user->role)): ?>
                 <button permission="delete" @click.prevent="deleteUser" type="button" permission="delete" class="btn btn-danger">
                     <i class="fas fa-trash"></i>
                     Delete
@@ -253,7 +253,7 @@
                     method: 'post',
                     body: formData,
                     headers: {
-                        "Content-Type": "multipart/form-data",
+                        //   "Content-Type": "multipart/form-data",
                         "X-API-Key": "<?php echo $api_key ?>"
                     }
                 }).then(res => res.json()).then(data => {

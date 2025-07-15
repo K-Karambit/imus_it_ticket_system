@@ -9,6 +9,7 @@ use Models\Session;
 use Models\User;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Shuchkin\SimpleXLSXGen;
+use Illuminate\Support\Str;
 
 $activity = new Activity();
 $helper   = new Helper();
@@ -95,18 +96,18 @@ if ($action === 'update') {
         if (isset($_FILES['profile']) && $_FILES['profile']['name']) {
             $file      = $_FILES['profile'];
             $file_ext  = pathinfo($file['name'], PATHINFO_EXTENSION);
-            $file_name = date('YmdHis') . time() . '.' . $file_ext;
-
+            $file_name = Str::uuid() . '.' . $file_ext;
+            $file_name = strtolower($file_name);
             $storage_path    = ROOT . "/api/storage";
             $current_profile = "$storage_path/$user->profile";
 
-            if (file_exists($current_profile) && ! empty($session->session_user()->profile)) {
-                unlink($current_profile);
-            }
-
-            if (! in_array(strtolower($file_ext), $imageExtensions)) {
+            if (!in_array(strtolower($file_ext), $imageExtensions)) {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid file format.']);
                 return;
+            }
+
+            if (file_exists($current_profile)) {
+                unlink($current_profile);
             }
 
             $move = move_uploaded_file($file['tmp_name'], "$storage_path/$file_name");
@@ -200,7 +201,7 @@ if ($action === 'add') {
             $storage_path    = ROOT . "/api/storage";
             $move         = move_uploaded_file($file['tmp_name'], "$storage_path/$file_name");
 
-            if (! in_array(strtolower($file_ext), $imageExtensions)) {
+            if (!in_array(strtolower($file_ext), $imageExtensions)) {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid file format.']);
                 return;
             }

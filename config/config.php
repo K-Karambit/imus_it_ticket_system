@@ -7,9 +7,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Events\Dispatcher; // Needed if you use event dispatcher
 use Illuminate\Container\Container; // Needed if you use event dispatcher
 
-
 date_default_timezone_set('Asia/Manila');
-
 
 $capsule = new Capsule;
 $capsule->addConnection([
@@ -21,13 +19,11 @@ $capsule->addConnection([
     'charset'   => 'utf8',
     'collation' => 'utf8_unicode_ci',
     'prefix'    => '',
-    'port'      => 3306, // MySQL default port, good to be explicit
-    'sslmode'   => 'REQUIRED', // Enforce SSL connection
-    'options'   => [
-        // Path to your Azure MySQL CA certificate on the server
-        // Ensure this path is correct and accessible by your web app!
-        PDO::MYSQL_ATTR_SSL_CA => __DIR__ . '/DigiCertGlobalRootCA.crt.pem'
-    ],
+    'port'      => DB_PORT,
+    'sslmode'   => SSL_MODE,
+    'options' => extension_loaded('pdo_mysql') ? array_filter([
+        PDO::MYSQL_ATTR_SSL_CA => MYSQL_ATTR_SSL_CA,
+    ]) : [],
 ]);
 
 // Optional: Set the event dispatcher if your models use events
@@ -41,4 +37,3 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 // Rest of your application code...
-?>
