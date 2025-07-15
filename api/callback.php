@@ -3,6 +3,8 @@
 include __DIR__ . '/../config/config.php';
 include __DIR__ . '/../constants.php';
 
+
+
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
@@ -18,7 +20,7 @@ $clientId = AZURE_APP_ID;
 $clientSecret =  AZURE_CLIENT_SECRET;
 $redirectUri =  AZURE_REDIRECT_URI;
 $tenantId =   AZURE_TENANT_ID;
-$scopes = explode(' ', AZURE_GRAPH_SCOPES); // Convert space-separated string to array
+$scopes = explode(' ',  AZURE_GRAPH_SCOPES); // Convert space-separated string to array
 
 // Create the OAuth 2.0 provider
 $provider = new \League\OAuth2\Client\Provider\GenericProvider([
@@ -60,11 +62,11 @@ if (isset($_GET['code'])) {
         $user = User::where('email', $userData['userPrincipalName'] ?? null)->where('is_deleted', 0)->first();
 
         if (!$user) {
-            header('Location: ../index.php?microsoftErrorMessage=No account found.');
+            header('Location: ../index.php?microsoftErrorMessage=Invalid username or password.');
             exit();
         }
 
-        $generated_token = sha1(rand(1000, 9999));
+        $generated_token = md5(random_bytes(10));
         $session = new Session();
         $session->user_id = $user->user_id;
         $session->token = $generated_token;
