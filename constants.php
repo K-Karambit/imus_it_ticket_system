@@ -17,7 +17,7 @@ define('AZURE_GRAPH_SCOPES', 'https://graph.microsoft.com/.default');
 
 
 
-function defaultApiConfig($default_api = 'local')
+function defaultApiConfig($default_api = 'azure')
 {
     if ($default_api == 'azure') {
         return [
