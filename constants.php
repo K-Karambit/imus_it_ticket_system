@@ -11,12 +11,6 @@ define('AZURE_GRAPH_SCOPES', 'https://graph.microsoft.com/.default');
 
 
 
-
-
-
-
-
-
 function defaultApiConfig($default_api = 'azure')
 {
     if ($default_api == 'azure') {
@@ -74,6 +68,6 @@ function defaultServer($default_server = 'local')
 
 define('CONFIG', defaultServer('azure'));
 
-foreach (defaultApiConfig() as $key => $value) {
+foreach (defaultApiConfig('azure') as $key => $value) {
     define($key, $value);
 }
