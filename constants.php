@@ -9,8 +9,6 @@ define('AZURE_TENANT_ID', 'a8411b96-92c2-4538-9eba-9dcc50ef1162');
 define('AZURE_GRAPH_SCOPES', 'https://graph.microsoft.com/.default');
 
 
-
-
 function defaultApiConfig($default_api = 'azure')
 {
     if ($default_api == 'azure') {

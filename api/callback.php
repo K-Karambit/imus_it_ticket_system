@@ -10,7 +10,6 @@ if (session_status() == PHP_SESSION_NONE) {
 use Models\User;
 use Models\Activity;
 use Models\Session;
-use Illuminate\Support\Str;
 
 // $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 // $dotenv->load();
@@ -65,7 +64,7 @@ if (isset($_GET['code'])) {
             exit();
         }
 
-        $generated_token = Str::random(64);
+        $generated_token = sha1(rand(1000, 9999));
         $session = new Session();
         $session->user_id = $user->user_id;
         $session->token = $generated_token;
