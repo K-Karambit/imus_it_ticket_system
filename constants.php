@@ -3,7 +3,7 @@
 define('ROOT',  $_SERVER['DOCUMENT_ROOT']);
 
 define('AZURE_APP_ID', 'abfed74c-1e74-4e39-972b-3fe0e9568db3');
-define('AZURE_CLIENT_SECRET', 'jCt8Q~KDn_AvAitZekzlzK_qg472kC5EuXxnUbQ-');
+define('AZURE_CLIENT_SECRET', 'Ybq8Q~3YYVWrWzFvwPbJHZOAP.Pm3sExqxK_ta_a');
 define('AZURE_REDIRECT_URI', 'https://imus-it-ticket-system.azurewebsites.net/api/callback.php');
 define('AZURE_TENANT_ID', 'a8411b96-92c2-4538-9eba-9dcc50ef1162');
 define('AZURE_GRAPH_SCOPES', 'https://graph.microsoft.com/.default');
