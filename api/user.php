@@ -97,7 +97,7 @@ if ($action === 'update') {
             $file_ext  = pathinfo($file['name'], PATHINFO_EXTENSION);
             $file_name = date('YmdHis') . time() . '.' . $file_ext;
 
-            $storage_path    = __DIR__ . "/storage";
+            $storage_path    = ROOT . "/api/storage";
             $current_profile = "$storage_path/$user->profile";
 
             if (file_exists($current_profile) && ! empty($session->session_user()->profile)) {
@@ -197,7 +197,7 @@ if ($action === 'add') {
             $file         = $_FILES['profile'];
             $file_ext     = pathinfo($file['name'], PATHINFO_EXTENSION);
             $file_name    = date('YmdHis') . time() . '.' . $file_ext;
-            $storage_path = __DIR__ . "/storage";
+            $storage_path    = ROOT . "/api/storage";
             $move         = move_uploaded_file($file['tmp_name'], "$storage_path/$file_name");
 
             if (! in_array(strtolower($file_ext), $imageExtensions)) {
