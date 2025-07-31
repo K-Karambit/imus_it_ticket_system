@@ -22,10 +22,10 @@ $capsule->addConnection([
     'collation' => 'utf8_unicode_ci',
     'prefix'    => '',
     'port'      => '3306', // MySQL default port, good to be explicit
-    'sslmode'   => 'REQUIRED', // Enforce SSL connection
-    'options'   => [
-        PDO::MYSQL_ATTR_SSL_CA => __DIR__ . '/DigiCertGlobalRootCA.crt.pem',
-    ],
+    'sslmode'   => SSL_MODE, // Enforce SSL connection
+    'options' => extension_loaded('pdo_mysql') ? array_filter([
+        PDO::MYSQL_ATTR_SSL_CA => MYSQL_ATTR_SSL_CA,
+    ]) : [],
 ]);
 
 // Optional: Set the event dispatcher if your models use events

@@ -16,9 +16,9 @@ $session =  Session::session_user();
 if ($_GET['action'] === 'all') {
     $categories = Category::orderBy('category_name', 'asc');
 
-
-    $categories->where('group_id', $session->group_id);
-
+    if ($session->is_super_admin != 1) {
+        $categories->where('group_id', $session->group_id);
+    }
 
     $results = $categories->get();
     echo json_encode($results);

@@ -12,6 +12,7 @@ class State extends Model
     protected $fillable = ['ticket_id', 'status', 'note', 'updated_by'];
     protected $hidden = ['notes'];
     protected $appends = ['date_added', 'details', 'updated_by_name'];
+    protected $with = ['user'];
 
     function getDateAddedAttribute()
     {
@@ -24,5 +25,9 @@ class State extends Model
     function getUpdatedByNameAttribute()
     {
         return User::where('user_id', '=', $this->updated_by)->first()->full_name ?? 'No information';
+    }
+    function user()
+    {
+        return $this->hasOne(User::class, 'user_id', 'updated_by');
     }
 }

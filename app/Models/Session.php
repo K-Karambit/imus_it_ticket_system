@@ -17,7 +17,7 @@ class Session extends Model
     }
     $session = Session::where('token', '=', $_SESSION['SESSION_TOKEN'] ?? null)->first();
     if ($session != null) {
-      return User::where('user_id', '=', $session->user_id)->first();
+      return User::where('user_id', $session->user_id)->first();
     }
 
     return null;

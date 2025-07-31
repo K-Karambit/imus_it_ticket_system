@@ -11,15 +11,11 @@ class User extends Model
   protected $fillable = ['user_id', 'first_name', 'middle_name', 'last_name', 'username', 'password', 'role', 'status', 'email', 'phone', 'profile', 'group_id'];
   protected $hidden = ['password'];
   protected $appends = ['full_name', 'date_added', 'user_profile', 'user_role', 'group_name'];
+  protected $with = ['group'];
 
   function getFullNameAttribute()
   {
-    $first_name = !empty($this->first_name) ? $this->first_name : null;
-    $last_name = !empty($this->last_name) ? $this->last_name : null;
-    $middle_name = !empty($this->middle_name) ? $this->middle_name : null;
-
-    $full_name =  "$first_name $middle_name $last_name";
-
+    $full_name =  "{$this->first_name} {$this->middle_name} {$this->last_name}";
     return !is_null($full_name) ? ucwords(strtolower($full_name)) : 'User not found.';
   }
 
@@ -45,6 +41,10 @@ class User extends Model
 
   function getGroupNameAttribute()
   {
-    return Group::where('group_id', $this->group_id)->first()->group_name ?? 'User has no group assigned.';
+    return $this->group?->group_name ?? 'No group';
+  }
+  function group()
+  {
+    return $this->hasOne(Group::class, 'group_id', 'group_id');
   }
 }

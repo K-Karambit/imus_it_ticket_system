@@ -2,6 +2,7 @@
 include __DIR__ . '/../config/config.php';
 include __DIR__ . '/../config/headers.php';
 
+use Illuminate\Contracts\Cache\Store;
 use Models\Activity;
 use Models\Helper;
 use Models\Role;
@@ -20,16 +21,35 @@ $action = $_GET['action'] ?? null;
 if ($action === 'all') {
     $users = User::orderBy('id', 'desc')->orderBy('group_id')->where('is_deleted', 0);
 
-    $users->where('group_id', $session->group_id);
+    if ($session->is_super_admin != 1) {
+        $users->where('group_id', $session->group_id);
+    }
 
     $results = $users->get();
     echo json_encode($results);
 }
 
+if ($action === 'all_user_in_system') {
+    $users = User::orderBy('id', 'desc')->where('is_deleted', 0);
+
+
+    if ($session->is_super_admin != 1) {
+        $users->where('group_id', $session->group_id);
+    }
+
+
+    $results = $users->get();
+    echo json_encode($results);
+}
+
+
 if ($action === 'count') {
     $users = User::where('is_deleted', 0);
 
-    $users->where('group_id', $session->group_id);
+
+    if ($session->is_super_admin != 1) {
+        $users->where('group_id', $session->group_id);
+    }
 
     $counts = $users->count();
 
@@ -100,6 +120,7 @@ if ($action === 'update') {
             $file_name = strtolower($file_name);
             $storage_path    = ROOT . "/api/storage";
             $current_profile = "$storage_path/$user->profile";
+
 
             if (!in_array(strtolower($file_ext), $imageExtensions)) {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid file format.']);
@@ -180,7 +201,7 @@ if ($action === 'add') {
 
         $emailExists       = User::where('email', $_POST['email'] ?? null)->where('is_deleted', 0)->exists();
         $user              = User::where('username', '=', $_POST['username'])->where('is_deleted', 0)->first();
-        $generated_user_id = sha1(time());
+        $generated_user_id = Str::uuid();
 
         if ($user) {
             echo json_encode(['status' => 'error', 'message' => 'Invalid. Username already exist.']);
@@ -325,7 +346,9 @@ if ($action === 'excel_import') {
 if (isset($_GET['export'])) {
     $users = User::where('is_deleted', 0);
 
-    $users->where('group_id', $session->group_id);
+    if ($session->role != 123) {
+        $users->where('group_id', $session->group_id);
+    }
 
     $users = $users->get();
 

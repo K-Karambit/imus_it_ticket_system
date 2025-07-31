@@ -33,10 +33,10 @@
               </h3>
             </div>
             <div class="card-body">
-              <table id="example2" class="table table-bordered table-hover table-striped">
+              <table id="example2" class="table table-bordered table-hover table-striped text-wrap">
                 <thead>
                   <tr>
-                    <th>#</th>
+                    <th class="d-none">#</th>
                     <th>Full Name</th>
                     <th>Email</th>
                     <th>Role</th>
@@ -49,7 +49,7 @@
                   <tr v-for="(user, index) in users" :key="index" style="cursor:pointer;"
                     @click.prevent="window.location.href=`?route=/profile&id=${user.user_id}`">
 
-                    <td class="align-content-center">{{index + 1}}</td>
+                    <td class="align-content-center d-none">{{index + 1}}</td>
 
                     <td>
                       <img class="p-0" :src="user.user_profile" width="80" alt="">

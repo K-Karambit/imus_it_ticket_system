@@ -1,17 +1,20 @@
 <script>
   function showLoading() {
-    Swal.fire({
-      title: 'Loading...',
-      text: 'Please wait while we process your request.',
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
+    // Swal.fire({
+    //   title: 'Loading...',
+    //   text: 'Please wait while we process your request.',
+    //   allowOutsideClick: false,
+    //   didOpen: () => {
+    //     Swal.showLoading();
+    //   }
+    // });
+
+    Pace.start();
   }
 
   function closeLoading() {
-    Swal.close();
+    // Swal.close();
+    Pace.stop();
   }
 </script>
 
@@ -78,7 +81,7 @@
   checkSession();
   setInterval(function() {
     checkSession();
-  },  60000); // Check session every 60 seconds
+  }, 60000); // Check session every 60 seconds
 </script>
 
 
@@ -117,7 +120,7 @@
  -->
 
 
-
+<?php include 'scripts/startup.php'; ?>
 
 </body>
 

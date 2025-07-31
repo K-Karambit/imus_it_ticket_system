@@ -1,4 +1,4 @@
-<div class="modal mb-4" id="editProfileModal" data-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel"
+<div class="modal mb-4 fade" id="editProfileModal" data-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">

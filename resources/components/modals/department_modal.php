@@ -1,5 +1,5 @@
 <?php if (permission('departments', 'w', $session_user->role)) : ?>
-    <div class="modal" id="editDepartmentModal" data-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel"
+    <div class="modal fade" id="editDepartmentModal" data-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -17,7 +17,7 @@
                                 placeholder="Enter department name" required />
                         </div>
                     </div>
-                    <div class="card-footer float-right">
+                    <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">Save Changes</button>
                         <?php if (permission('departments', 'd', $session_user->role)) : ?>
                             <button class="btn btn-danger" type="button" @click="deleteDepartment(department.id)">Delete</button>
@@ -46,16 +46,13 @@
                 </div>
                 <form id="addDepartmentForm" @submit.prevent="submitAddDepartmentForm">
                     <div class="modal-body">
-
                         <div class="form-group">
                             <label for="name">Department Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="name" id="name"
                                 placeholder="Enter department name" required />
                         </div>
-
-
                     </div>
-                    <div class="card-footer float-right">
+                    <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">Add Department</button>
                     </div>
                 </form>

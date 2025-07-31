@@ -167,3 +167,8 @@ if ($route === '/groups') {
   include __DIR__ . '/resources/components/footer.php';
   exit;
 }
+
+
+if ($route === '/logout') {
+  header('Location: api/logout.php');
+}

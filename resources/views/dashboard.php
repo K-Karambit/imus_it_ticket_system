@@ -18,212 +18,141 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-
-
-<div class="content-wrapper" id="dashboard" style="overflow: scroll;">
-  <div class="main-content">
-    <section class="content m-5">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="container-fluid">
-            <div class="card mb-3">
-
-              <div class="card-header">
-                <!-- <h5 class="text-center mb-5">Monthly Ticket Summary</h5>
- -->
-
-                <div class="d-flex">
-
-                  <input class="form-control" type="date" name="start_date" id="start_date" v-model="startDate">
-
-                  <input class="form-control" type="date" name="end_date" id="end_date" v-model="endDate">
-
-
-                  <button @click.prevent="fetchMonthlyReports" class="btn btn-primary">Filter</button>
-
-
-                  <button @click.prevent="resetFilter" class="btn btn-danger">Reset</button>
-
-                  <!-- <div class="form-group col">
-                    <label for="">Year</label>
-                    <select @change="fetchMonthlyReports" class="form-control" v-model="yearFilter">
-                      <?php
-                      for ($i = 2024; $i <= 3000; $i++) {
-                        echo "<option value='$i'>$i</option>";
-                      }
-                      ?>
-                    </select>
-                  </div> -->
-
-                  <!-- <div class="form-group col">
-                    <label for="">User</label>
-                    <select @change="fetchMonthlyReports" class="form-control" v-model="userFilter">
-                      <option value="">All</option>
-                      <option v-for="(user, index) in users" :value="user.user_id">{{user.full_name}}</option>
-                    </select>
-                  </div>
-
-                  <div class="form-group col">
-                    <label for="">Departments</label>
-                    <select @change="fetchMonthlyReports" class="form-control" v-model="departmentFilter">
-                      <option value="">All</option>
-                      <option v-for="(department, index) in departments" :value="department.id">{{department.name}}</option>
-                    </select>
-                  </div> -->
-
-
-                  <!-- <label for="chart-type">Chart Type</label>
-                  <select @change="selectChartType" id="chart-type" v-model="chartType">
-                    <option value="bar">Bar</option>
-                    <option value="line">Line</option>
-                  </select> -->
-
-                </div>
-              </div>
-
-              <div class="card-body">
-
-                <div id="chart" width="100%" height="20"></div>
-
-              </div>
-            </div>
-          </div>
+<div class="content-wrapper" id="dashboard">
+  <div class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1 class="m-0">Dashboard</h1>
         </div>
-
-
-        <hr>
-
-
-        <div class="row">
-          <div class="col-lg-4">
-            <div class="card mb-3" data-status="new">
-              <div class="card-header">
-                <h5 class="card-title">3 days unresolved</h5>
-              </div>
-              <div class="card-body">
-                <p class="card-text">{{threeDaysUnresolved.length}}</p>
-              </div>
-              <div class="card-footer text-right">
-                <a class="btn btn-primary" href="#" @click.prevent="viewTicketModal(threeDaysUnresolved, '3 Days Unresolved')"><i class="fa fa-eye"></i></a>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="card mb-3" data-status="new">
-              <div class="card-header">
-                <h5 class="card-title">1 week unresolved</h5>
-              </div>
-              <div class="card-body">
-                <p class="card-text">{{oneWeekUnresolved.length}}</p>
-              </div>
-              <div class="card-footer text-right">
-                <a class="btn btn-primary" href="#" @click.prevent="viewTicketModal(oneWeekUnresolved, '1 Week Unresolved')"><i class="fa fa-eye"></i></a>
-              </div>
-            </div>
-          </div>
+        <div class="col-sm-6">
+          <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="#">Home</a></li>
+            <li class="breadcrumb-item active">Dashboard</li>
+          </ol>
         </div>
-
-
-        <hr>
-
-
-        <div class="row">
-          <div class="col-lg-4">
-            <div class="card mb-3" data-status="new">
-              <div class="card-header">
-                <h5 class="card-title">New</h5>
-              </div>
-              <div class="card-body">
-                <p class="card-text">{{newTicket.length}}</p>
-              </div>
-              <div class="card-footer text-right">
-                <a class="btn btn-primary" href="#" @click.prevent="viewTicketModal(newTicket, 'New Ticket')"><i class="fa fa-eye"></i></a>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-4">
-            <div class="card mb-3" data-status="in-progress">
-              <div class="card-header">
-                <h5 class="card-title">In Progress</h5>
-              </div>
-              <div class="card-body">
-                <p class="card-text">{{inProgress.length}}</p>
-              </div>
-              <div class="card-footer text-right">
-                <a class="btn btn-primary" href="#" @click.prevent="viewTicketModal(inProgress, 'In Progress')"><i class="fa fa-eye"></i></a>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-4">
-            <div class="card mb-3" data-status="on-hold">
-              <div class="card-header">
-                <h5 class="card-title">On Hold</h5>
-              </div>
-              <div class="card-body">
-                <p class="card-text">{{onHold.length}}</p>
-              </div>
-              <div class="card-footer text-right">
-                <a class="btn btn-primary" href="#" @click.prevent="viewTicketModal(onHold, 'On Hold')"><i class="fa fa-eye"></i></a>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-4">
-            <div class="card mb-3" data-status="resolved">
-              <div class="card-header">
-                <h5 class="card-title">Resolved</h5>
-              </div>
-              <div class="card-body">
-                <p class="card-text">{{resolved.length}}</p>
-              </div>
-              <div class="card-footer text-right">
-                <a class="btn btn-primary" href="#" @click.prevent="viewTicketModal(resolved, 'Resolved')"><i class="fa fa-eye"></i></a>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-4">
-            <div class="card mb-3" data-status="cancelled">
-              <div class="card-header">
-                <h5 class="card-title">Cancelled</h5>
-              </div>
-              <div class="card-body">
-                <p class="card-text">{{cancelled.length}}</p>
-              </div>
-              <div class="card-footer text-right">
-                <a class="btn btn-primary" href="#" @click.prevent="viewTicketModal(cancelled, 'Cancelled')"><i class="fa fa-eye"></i></a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <?php if (permission('users', 'r',   $session_user->role)) : ?>
-          <hr>
-
-
-        <?php endif; ?>
-
       </div>
-    </section>
+    </div>
   </div>
+  <section class="content">
+    <div class="container-fluid">
 
+      <div class="row">
+        <div class="col-lg-4 col-md-6">
+          <div class="small-box bg-primary">
+            <div class="inner">
+              <h3>{{counts.new ?? 0}}</h3>
+              <p>New Tickets</p>
+            </div>
+            <div class="icon">
+              <i class="fas fa-folder-plus"></i>
+            </div>
+            <a href="#" @click.prevent="viewTicketModal(newTicket, 'New Ticket')" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
 
+        <div class="col-lg-4 col-md-6">
+          <div class="small-box bg-info">
+            <div class="inner">
+              <h3>{{counts.in_progress ?? 0}}</h3>
+              <p>In Progress</p>
+            </div>
+            <div class="icon">
+              <i class="fas fa-sync-alt"></i>
+            </div>
+            <a href="#" @click.prevent="viewTicketModal(inProgress, 'In Progress')" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
 
+        <div class="col-lg-4 col-md-6">
+          <div class="small-box bg-warning">
+            <div class="inner">
+              <h3>{{counts.on_hold ?? 0}}</h3>
+              <p>On Hold</p>
+            </div>
+            <div class="icon">
+              <i class="fas fa-pause-circle"></i>
+            </div>
+            <a href="#" @click.prevent="viewTicketModal(onHold, 'On Hold')" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
 
+        <div class="col-lg-4 col-md-6">
+          <div class="small-box bg-success">
+            <div class="inner">
+              <h3>{{counts.resolved ?? 0}}</h3>
+              <p>Resolved</p>
+            </div>
+            <div class="icon">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <a href="#" @click.prevent="viewTicketModal(resolved, 'Resolved')" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
 
-  <div class="modal fade" id="viewTicketModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
+        <div class="col-lg-4 col-md-6">
+          <div class="small-box bg-secondary">
+            <div class="inner">
+              <h3>{{counts.cancelled ?? 0}}</h3>
+              <p>Cancelled</p>
+            </div>
+            <div class="icon">
+              <i class="fas fa-times-circle"></i>
+            </div>
+            <a href="#" @click.prevent="viewTicketModal(cancelled, 'Cancelled')" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="small-box bg-light">
+            <div class="inner">
+              <h3>{{counts.totalTickets ?? 0}}</h3>
+              <p>Total Tickets</p>
+            </div>
+            <div class="icon">
+              <i class="fas fa-ticket-alt"></i>
+            </div>
+            <a href="#" @click.prevent="viewTicketModal(oneWeekUnresolved, '1 Week Unresolved')" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="small-box bg-danger">
+            <div class="inner">
+              <h3>{{counts.unresolved3Days ?? 0}}</h3>
+              <p>3 Days Unresolved</p>
+            </div>
+            <div class="icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <a href="#" @click.prevent="viewTicketModal(threeDaysUnresolved, '3 Days Unresolved')" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="small-box bg-danger">
+            <div class="inner">
+              <h3>{{counts.unresolved7Days ?? 0}}</h3>
+              <p>1 Week Unresolved</p>
+            </div>
+            <div class="icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <a href="#" @click.prevent="viewTicketModal(oneWeekUnresolved, '1 Week Unresolved')" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="modal fade" id="viewTicketModal" tabindex="-1" role="dialog" aria-labelledby="viewTicketModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
+          <h5 class="modal-title" id="viewTicketModalLabel">{{title}}</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
           <div class="table-responsive">
-            <table class="table" id="data">
+            <table class="table table-bordered table-striped" id="data">
               <thead>
                 <tr>
                   <th>#</th>
@@ -251,25 +180,13 @@
             </table>
           </div>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
         </div>
       </div>
     </div>
   </div>
-
-
-
-
-
-
-
-
-
-
 </div>
-
 
 <script>
   new Vue({
@@ -280,6 +197,7 @@
       tickets: [],
       chartType: 'bar',
       myChart: null,
+      counts: [],
 
       chartData: [],
       chartLabel: [],
@@ -302,34 +220,11 @@
       endDate: '',
 
       selectedTickets: [],
-      title: null
+      title: null,
+
+      timeFilter: '',
     },
     methods: {
-      fetchTickets() {
-        fetch(`<?= $api ?>/tickets.php?action=all&start_date=${this.startDate}&end_date=${this.endDate}`, {
-          method: 'GET',
-          headers: {
-            "X-API-Key": "<?= $api_key ?>"
-          }
-        }).then(res => res.json()).then(data => {
-
-          if (<?= $session_user->role ?> == 1) {
-            this.newTicket = data.filter(item => item.status === 'New');
-            this.onHold = data.filter(item => item.status === 'On Hold');
-            this.inProgress = data.filter(item => item.status === 'In Progress');
-            this.resolved = data.filter(item => item.status === 'Resolved');
-            this.cancelled = data.filter(item => item.status === 'Cancelled');
-          } else {
-            this.newTicket = data.filter(item => item.status === 'New' && item.user_id == '<?= $session_user->user_id ?>');
-            this.onHold = data.filter(item => item.status === 'On Hold' && item.user_id == '<?= $session_user->user_id ?>');
-            this.inProgress = data.filter(item => item.status === 'In Progress' && item.user_id == '<?= $session_user->user_id ?>');
-            this.resolved = data.filter(item => item.status === 'Resolved' && item.user_id == '<?= $session_user->user_id ?>');
-            this.cancelled = data.filter(item => item.status === 'Cancelled' && item.user_id == '<?= $session_user->user_id ?>');
-          }
-
-
-        })
-      },
       fetchUsers() {
         fetch('<?= $api ?>/user.php?action=all', {
           method: 'GET',
@@ -434,13 +329,22 @@
           });
         });
         $('#viewTicketModal').modal('show');
+      },
+      fetchDataCounts() {
+        axios.get('<?= $api ?>/tickets.php?action=counts', {
+          headers: {
+            "X-API-Key": "<?= $api_key ?>"
+          }
+        }).then(response => {
+          this.counts = response.data;
+        })
       }
     },
     mounted() {
-      this.fetchTickets();
       this.fetchUsers();
       this.fetchMonthlyReports();
       this.fetchDepartments();
+      this.fetchDataCounts();
     }
   })
 </script>

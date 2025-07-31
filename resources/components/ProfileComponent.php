@@ -1,6 +1,6 @@
 <div class="card mb-4" id="profile-component">
     <div class="card-body text-center">
-        <img :src="data.user_profile" alt="Profile Image" class="rounded-circle img-fluid mb-3 shadow"
+        <img :src="data.user_profile ?? 'api/storage/default-profile.jpg' " alt="Profile Image" class="rounded-circle img-fluid mb-3 shadow"
             style="width: 150px; height: 150px;">
 
         <h4 class="card-text">{{data.full_name}}</h4>

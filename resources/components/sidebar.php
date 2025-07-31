@@ -19,11 +19,11 @@
         <a href="/home" class="d-block route-link"><?= $session_user->full_name ?></a>
       </div>
     </div>
-    <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+    <!-- <div class="user-panel mt-3 pb-3 mb-3 d-flex">
       <div class="image">
         <a href="#" onclick="logout()" title="Logout"><i class="fas fa-solid fa-sign-out-alt"></i> Logout</a>
       </div>
-    </div>
+    </div> -->
 
     <!-- SidebarSearch Form -->
 
@@ -61,15 +61,15 @@
 
 
         <?php if (permission('dashboard', 'r', $session_user->role)) : ?>
-          <li class="nav-item">
+          <!-- <li class="nav-item">
             <a href="/dashboard" class="nav-link navlink route-link" title="Dashboard">
               <i class="nav-icon fas fa-tachometer-alt"></i>
               <p>
                 Dashboard
-                <!-- <span class="badge badge-info right">2</span> -->
+
               </p>
             </a>
-          </li>
+          </li> -->
         <?php endif;  ?>
 
 
@@ -149,7 +149,7 @@
 
 
 
-        <!-- 
+
         <?php if (permission('groups', 'r',   $session_user->role)) : ?>
           <li class="nav-item">
             <a href="/groups" class="nav-link navlink route-link" title="Users">
@@ -161,7 +161,7 @@
           </li>
         <?php endif;  ?>
 
- -->
+
 
 
 
@@ -291,13 +291,13 @@
 
 <script>
   function getNewTickets() {
-    fetch('api/tickets.php?action=new_tickets_count', {
+    fetch('<?= $api ?>/tickets.php?action=counts', {
       method: 'get',
       headers: {
         "X-API-Key": "<?= $api_key ?>"
       }
-    }).then(res => res.text()).then(data => {
-      document.querySelector('#new-ticket-count').textContent = data;
+    }).then(res => res.json()).then(data => {
+      document.querySelector('#new-ticket-count').textContent = data.new;
     }).catch(error => {
       console.error('error', error);
     })

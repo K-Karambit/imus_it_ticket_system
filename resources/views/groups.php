@@ -1,4 +1,4 @@
-<div class="content-wrapper" id="groups" style="overflow: scroll;">
+<div class="content-wrapper" id="groups">
 
     <section class="content-header">
         <div class="container-fluid">
@@ -36,7 +36,7 @@
                             <table id="example2" class="table table-bordered table-hover table-striped">
                                 <thead>
                                     <tr>
-                                        <th>#</th>
+                                        <th class="d-none">#</th>
                                         <th>Group name</th>
                                         <th>Date Created</th>
                                         <th>Action</th>
@@ -44,7 +44,7 @@
                                 </thead>
                                 <tbody>
                                     <tr v-for="(group, index) in groups" :key="index" style="cursor:pointer;">
-                                        <td class="align-content-center">{{index + 1}}</td>
+                                        <td class="align-content-center d-none">{{index + 1}}</td>
                                         <td class="align-content-center">{{group.group_name}}</td>
                                         <td class="align-content-center">{{group.created_at}}</td>
                                         <td>

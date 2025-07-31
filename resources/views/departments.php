@@ -19,7 +19,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card">
-                        <div class="card-body">
+                        <div class="card-header">
                             <?php if (permission('departments', 'w', $session_user->role)) : ?>
                                 <div class="mb-3">
                                     <button data-target="#addDepartmentModal" data-toggle="modal" class="btn btn-primary">
@@ -30,17 +30,19 @@
                                     </button>
                                 </div>
                             <?php endif; ?>
+                        </div>
+                        <div class="card-body">
                             <table id="departments" class="table table-bordered  table-striped table-hover">
                                 <thead>
                                     <tr>
-                                        <th>#</th>
+                                        <th class="d-none">#</th>
                                         <th>Name</th>
                                         <th>Date Created:</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="(department, index) in departments" :key="department.id" @click.prevent="editDepartment(index)" style="cursor:pointer;">
-                                        <td>{{ index + 1 }}</td>
+                                        <td class="d-none">{{ index + 1 }}</td>
                                         <td>
                                             {{department.name}}
                                         </td>

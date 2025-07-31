@@ -19,7 +19,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card">
-                        <div class="card-body">
+                        <div class="card-header">
                             <?php if (permission('category', 'w', $session_user->role)) : ?>
                                 <div class="mb-3">
                                     <button data-target="#addCategoryModal" data-toggle="modal" class="btn btn-primary">
@@ -30,10 +30,12 @@
                                     </button>
                                 </div>
                             <?php endif; ?>
+                        </div>
+                        <div class="card-body">
                             <table id="data" class="table table-bordered  table-striped table-hover">
                                 <thead>
                                     <tr>
-                                        <th>#</th>
+                                        <th class="d-none">#</th>
                                         <th>Name</th>
                                         <th>Date Created:</th>
                                         <th>Action</th>
@@ -41,7 +43,7 @@
                                 </thead>
                                 <tbody>
                                     <tr v-for="(row, index) in categories" :key="index" style="cursor:pointer;">
-                                        <td>{{ index + 1 }}</td>
+                                        <td class="d-none">{{ index + 1 }}</td>
                                         <td>
                                             {{row.category_name}}
                                         </td>

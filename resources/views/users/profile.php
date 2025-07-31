@@ -7,7 +7,7 @@
 
 
 
-<div class="content-wrapper" style="overflow: scroll;">
+<div class="content-wrapper">
 
 
   <!-- <section class="content-header">

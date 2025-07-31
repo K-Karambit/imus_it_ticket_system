@@ -24,27 +24,30 @@
 
 
   <!-- Include Select2 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+  <link href="plugins/select2/select2.min.css" rel="stylesheet" />
 
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="plugins/sweetalert/sweetalert2@11.js"></script>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.full.min.js"></script>
+  <script src="plugins/select2/select2.full.min.js"></script>
 
   <!-- Include Select2 JS -->
-  <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+  <script src="plugins/select2/select2.min.js"></script>
 
 
 
 
 
   <!-- Include Chosen CSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css">
+  <link rel="stylesheet" href="plugins/chosen/chosen.min.css">
 
   <!-- Include Chosen JS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
+  <script src="plugins/chosen/chosen.jquery.min.js"></script>
+
+  <link rel="stylesheet" href="plugins/pacejs/pace-theme-default.min.css">
+  <script src="plugins/pacejs/pace.min.js"></script>
 
 
-
+  <script src="plugins/axios/axios.min.js"></script>
 
 
   <style>
@@ -52,7 +55,7 @@
 
 
     * {
-      font-family: 'Roboto', sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       /* Default font for body text */
     }
 
@@ -63,34 +66,8 @@
       /* Change this value to adjust the size */
     }
 
-
-    .nav-item:hover {
-      background: #797EF6;
-      color: #fff;
-    }
-
-    .card {
-      border-radius: 0%;
-    }
-
-    thead {
-      background-color: #3B6790;
-      color: #fff;
-    }
-
-    #dashboard .card-header {
-      background-color: #3B6790;
-      color: #fff;
-    }
-
-    #dashboard .card-body {
-      background-color: #D1F8EF;
-      color: #000;
-    }
-
-    .modal-header {
-      background-color: #797EF6;
-      color: #fff;
+    .content-wrapper {
+      overflow: hidden;
     }
   </style>
 </head>
@@ -111,7 +88,6 @@
       .btn-danger,
       .btn-info,
       .form-control,
-      .modal-content,
       .table {
         border-radius: 0px;
       }
@@ -127,3 +103,24 @@
         });
       });
     </script> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <style>
+      .pace .pace-progress {
+     
+        height: 3px !important;
+        /* Adjust this value to your desired height */
+      }
+    </style>

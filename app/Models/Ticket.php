@@ -7,8 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Ticket extends Model
 {
     protected $table = 'tickets';  // The table associated with the model
-    protected $fillable = ['ticket_id', 'user_id', 'subject', 'description', 'department', 'urgency', 'status', 'added_by', 'category'];
+    protected $fillable = ['ticket_id', 'user_id', 'subject', 'description', 'department', 'urgency', 'status', 'added_by', 'category', 'claimant_name', 'client_name', 'amount'];
     protected $appends = ['date_added', 'assigned_user', 'short_description', 'department_name', 'added_by_name', 'category_name'];
+    protected $with = ['creator', 'assigned', 'department', 'category', 'group'];
 
     function getDateAddedAttribute()
     {
@@ -16,7 +17,7 @@ class Ticket extends Model
     }
     function getAssignedUserAttribute()
     {
-        return User::where('user_id', '=', $this->user_id)->first()->full_name ?? 'No User Assigned';
+        return User::where('user_id', '=', end(explode(',', $this->user_id)))->first()->full_name ?? 'No User Assigned';
     }
     function getDepartmentNameAttribute()
     {
@@ -48,5 +49,25 @@ class Ticket extends Model
     function getCategoryNameAttribute()
     {
         return Category::where('id', $this->category)->first()->category_name ?? 'No Category';
+    }
+    function creator()
+    {
+        return $this->hasOne(User::class,  'user_id', 'added_by');
+    }
+    function assigned()
+    {
+        return $this->hasOne(User::class, 'user_id', 'user_id');
+    }
+    function department()
+    {
+        return $this->hasOne(Department::class,  'id', 'department');
+    }
+    function category()
+    {
+        return $this->hasOne(Category::class,  'id', 'category');
+    }
+    function group()
+    {
+        return $this->hasOne(Group::class, 'group_id', 'group_id');
     }
 }

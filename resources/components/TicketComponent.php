@@ -9,6 +9,16 @@
                 <div class="card-header">
                     <div class="row align-items-center">
 
+
+                        <!-- Department Dropdown -->
+                        <div class="col-lg-3">
+                            <label for="department" class="form-label">Search</label>
+                            <div class="dropdown">
+                                <input type="text" class="form-control" placeholder="Search..." v-model="searchQuery">
+                            </div>
+                        </div>
+
+
                         <!-- Department Dropdown -->
                         <div class="col-lg-3">
                             <label for="department" class="form-label">Department</label>
@@ -137,46 +147,100 @@
 
                 <!-- Tickets Table -->
                 <div class="card-body">
-                    <div class="mb-3">
-                        <button @click="$('#addTicketModal').modal('show')" class="btn btn-primary"><i class="fa fa-plus"></i> Add Ticket</button>
-                        <button @click="$('#fileNameModal').modal('show')" class="btn btn-info" :disabled="tickets.length==0"><i class="fa fa-save"></i> Export</button>
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                        <div>
+                            <button @click="$('#addTicketModal').modal('show')" class="btn btn-primary">
+                                <i class="fa fa-plus me-1"></i> Add Ticket
+                            </button>
+                            <button @click="$('#fileNameModal').modal('show')" class="btn btn-outline-info" :disabled="tickets.length == 0">
+                                <i class="fa fa-save me-1"></i> Export
+                            </button>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <p class="mt-2">entries</p>
+                            </div>
+                            <div>
+                                <select class="form-control" v-model="filters.limit" @change.prevent="filterTickets">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="20">50</option>
+                                    <option value="100">100</option>
+                                    <option value="200">200</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <table id="tickets-data" class="table table-bordered table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <!-- <th>#</th> -->
-                                <th>ID</th>
-                                <th>Category</th>
-                                <th>Short Description</th>
-                                <th>Urgency</th>
-                                <th>Assigned To</th>
-                                <th>Department</th>
-                                <th>Status</th>
-                                <th>Date Created</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(ticket, index) in tickets" :key="ticket.id" @click.prevent="ticketDetails(index)" style="cursor: pointer;">
-                                <!-- <td>{{ index + 1 }}</td> -->
-                                <td>{{ ticket.ticket_id }}</td>
-                                <td>{{ ticket.category_name }}</td>
-                                <td class="limit-lines" v-html="ticket.short_description"></td>
-                                <td>
-                                    <span class="badge" :style="urgencyColor(ticket.urgency)">
-                                        {{ ticket.urgency }}
-                                    </span>
-                                </td>
-                                <td>{{ ticket.assigned_user }}</td>
-                                <td>{{ ticket.department_name }}</td>
-                                <td>
-                                    <span class="badge text-white" :style="statusColor(ticket.status)">
-                                        {{ ticket.status }}
-                                    </span>
-                                </td>
-                                <td>{{ ticket.date_added }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                    <!-- Ticket Table -->
+                    <div class="table-responsive">
+                        <table id="tickets-data" class="table table-bordered table-hover align-middle text-wrap">
+                            <thead class="">
+                                <tr>
+                                    <th class="d-none">#</th>
+                                    <th>ID</th>
+                                    <th>Short Description</th>
+                                    <th>Urgency</th>
+                                    <th>Assigned To</th>
+                                    <th>Department</th>
+                                    <th>Status</th>
+                                    <th>Additional Info</th>
+                                    <th>Group</th>
+                                    <th>Date Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(ticket, index) in tickets.data" :key="ticket.id"
+                                    @click.prevent="ticketDetails(index)"
+                                    class="cursor-pointer table-row-hover"
+                                    style="cursor: pointer;">
+                                    <td class="d-none">{{index+1}}</td>
+                                    <th>{{ ticket.ticket_id }}</th>
+                                    <td class="limit-lines" v-html="ticket.short_description"></td>
+                                    <td>
+                                        <span class="badge rounded-pill text-bg-light" :style="urgencyColor(ticket.urgency)">
+                                            {{ ticket.urgency }}
+                                        </span>
+                                    </td>
+                                    <td>{{ ticket.assigned ? ticket.assigned.full_name : ''  }}</td>
+                                    <td>{{ ticket.department ? ticket.department.name : 'No Department' }}</td>
+                                    <td>
+                                        <span class="badge rounded-pill text-white" :style="statusColor(ticket.status)">
+                                            {{ ticket.status }}
+                                        </span>
+                                    </td>
+                                    <td v-html=" additionalInfo(ticket)"></td>
+                                    <td>{{ticket.group ? ticket.group.group_name : 'No Group'}}</td>
+                                    <td>{{ ticket.date_added }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap">
+                        <div class="text-muted">Page {{ tickets.current_page }}</div>
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination mb-0">
+                                <li class="page-item" :class="{ 'disabled': !tickets.prev_page_url }">
+                                    <a class="page-link" href="#" @click.prevent="togglePage(tickets.prev_page_url)"
+                                        :tabindex="!tickets.prev_page_url ? -1 : 0"
+                                        :aria-disabled="!tickets.prev_page_url ? 'true' : 'false'">
+                                        <i class="fa fa-angle-left me-1"></i> Previous
+                                    </a>
+                                </li>
+                                <li class="page-item" :class="{ 'disabled': !tickets.next_page_url }">
+                                    <a class="page-link" href="#" @click.prevent="togglePage(tickets.next_page_url)"
+                                        :tabindex="!tickets.next_page_url ? -1 : 0"
+                                        :aria-disabled="!tickets.next_page_url ? 'true' : 'false'">
+                                        Next <i class="fa fa-angle-right ms-1"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -185,7 +249,6 @@
     <?php include __DIR__ . '/../components/modals/addTicketModal.php';  ?>
     <?php include __DIR__ . '/../components/modals/updateTicketStatusModal.php';  ?>
     <?php include __DIR__ . '/../components/modals/ticketDetailsModal.php';  ?>
-
 
     <div class="modal" id="fileNameModal" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -217,10 +280,12 @@
     new Vue({
         el: '#ticket-component',
         data: {
+            api: '<?= $api ?>',
             tickets: [],
             users: [],
             comment: {},
             departments: [],
+            groups: [],
 
             categories: [],
 
@@ -236,7 +301,8 @@
                 user_id: '<?= $_GET['route'] === '/home' ? $session_user->user_id : $_GET['id'] ?? null ?>',
                 subject: '',
                 description: '',
-                category: ''
+                category: '',
+                reassign_to_group_id: '',
             },
 
             stateDetails: '',
@@ -249,12 +315,13 @@
             fileName: '',
             departmentInput: '',
             category: '',
+            searchQuery: '',
 
 
             selectedDepartments: [], // Array to store selected department ids
             selectedUrgencies: [], // Array to store selected urgency levels
             selectedCategories: [], // Array to store selected category ids
-            selectedStatuses: ['New', 'In Progress', 'On Hold'], // Array to store selected status values
+            selectedStatuses: [], // Array to store selected status values
             selectedUsers: [],
 
             startDate: '',
@@ -267,47 +334,27 @@
             searchDepartmentsInput: '',
             searchCategoryInput: '',
 
+            searchGroupsInput: '',
+            selectedAssign: 'user',
+            enableSearchGroup: false,
+
             searchUsersResult: [],
             searchDepartmentsResult: [],
 
             individual: '',
+            currentURL: '',
+
+            filters: {
+                action: 'filter',
+                limit: 10,
+            },
+            currentURL: 'tickets.php',
+            page: 1,
+
+
+            responseMessage: '',
         },
         methods: {
-            fetchTickets() {
-                const params = new URLSearchParams(window.location.search);
-                const route = params.get('route');
-                const formData = new FormData();
-
-                if (route !== '/tickets') {
-                    const id = params.get('id') ?? '<?= $session_user->user_id ?>';
-                    formData.append('user_id', id);
-                    this.individual = id;
-                }
-
-                this.loading();
-                fetch('<?= $api ?>/tickets.php?action=all', {
-                    method: 'post',
-                    body: formData,
-                    headers: {
-                        "X-API-Key": "<?= $api_key ?>"
-                    }
-                }).then(res => res.json()).then(data => {
-                    this.loading(false);
-                    $('#tickets-data').DataTable().destroy();
-                    this.tickets = data;
-                    Vue.nextTick(() => {
-                        $('#tickets-data').DataTable({
-                            "paging": true,
-                            "lengthChange": true,
-                            "searching": true,
-                            "ordering": true,
-                            "info": true,
-                            "autoWidth": true,
-                            "responsive": true,
-                        });
-                    });
-                })
-            },
             filterTickets() {
                 const params = new URLSearchParams(window.location.search);
                 const route = params.get('route');
@@ -319,28 +366,42 @@
                 }
 
                 this.loading();
-                fetch(`<?= $api ?>/tickets.php?action=filter&urgency=${JSON.stringify(this.selectedUrgencies)}&startDate=${this.startDate}&endDate=${this.endDate}&department=${JSON.stringify(this.selectedDepartments)}&status=${JSON.stringify(this.selectedStatuses)}&category=${JSON.stringify(this.selectedCategories)}&user=${JSON.stringify(this.selectedUsers)}`, {
-                    method: 'post',
-                    body: formData,
+
+                axios.post(`${this.api}/tickets.php`, formData, {
+                    params: {
+                        ...this.filters,
+                        department: JSON.stringify(this.selectedDepartments),
+                        urgency: JSON.stringify(this.selectedUrgencies),
+                        category: JSON.stringify(this.selectedCategories),
+                        status: JSON.stringify(this.selectedStatuses),
+                        user: JSON.stringify(this.selectedUsers),
+                        startDate: this.startDate,
+                        endDate: this.endDate,
+                        page: this.page,
+                        searchQuery: this.searchQuery,
+                    },
                     headers: {
                         "X-API-Key": "<?= $api_key ?>"
                     }
-                }).then(res => res.json()).then(data => {
+                }).then(response => {
                     this.loading(false);
                     $('#tickets-data').DataTable().destroy();
-                    this.tickets = data;
+                    this.tickets = response.data;
                     Vue.nextTick(() => {
                         $('#tickets-data').DataTable({
-                            "paging": true,
-                            "lengthChange": false,
-                            "searching": true,
+                            "paging": false,
+                            "lengthChange": true,
+                            "searching": false,
                             "ordering": true,
-                            "info": true,
+                            "info": false,
                             "autoWidth": false,
                             "responsive": true,
                         });
                     });
-                })
+                }).catch(error => {
+                    // Handle error
+                    console.error(error);
+                });
             },
             fetchDepartments() {
                 fetch('<?= $api ?>/department.php?action=all', {
@@ -353,7 +414,7 @@
                 })
             },
             fetchUsers() {
-                fetch('<?= $api ?>/user.php?action=all', {
+                fetch('<?= $api ?>/user.php?action=all_user_in_system', {
                     method: 'GET',
                     headers: {
                         "X-API-Key": "<?= $api_key ?>"
@@ -377,7 +438,7 @@
                     this.loading(false);
                     if (data.status === 'success') {
                         toastr.success(data.message);
-                        this.fetchTickets();
+                        this.filterTickets();
 
                         $('#addTicketModal').modal('hide');
                         this.data = {
@@ -429,8 +490,10 @@
             },
             ticketDetails(index) {
                 $('#ticketDetailsModal').modal('show');
-                this.ticket = this.tickets[index];
+                this.ticket = this.tickets.data[index];
                 this.fetchTicketStates(this.ticket.ticket_id);
+                this.filteredGroups = this.filteredGroups.filter(item => item.group_id !== this.ticket.group_id);
+                console.log(this.filteredGroups)
             },
             fetchTicketStates(id) {
                 fetch('<?= $api ?>/states.php?action=get&id=' + id, {
@@ -468,7 +531,13 @@
                 formdata.append('status', this.stateStatus);
 
                 if (this.stateStatus === 'Reassign') {
-                    formdata.append('reassigned_user', this.data.user_id);
+                    formdata.append('reassigned_user', this.data.user_id ?? null);
+                    formdata.append('assign_by', this.selectedAssign ?? null);
+
+                    if (this.selectedAssign === 'group') {
+                        formdata.append('assigned_group_id', this.data.reassign_to_group_id ?? null);
+                        formdata.append('assigned_group_name', this.groups.find(group => group.group_id === this.data.reassign_to_group_id).group_name ?? null);
+                    }
                 }
 
                 fetch('<?= $api ?>/states.php?action=submit', {
@@ -494,7 +563,8 @@
                 this.selectedCategories = [];
                 this.selectedStatuses = [];
                 this.selectedUsers = [];
-                this.fetchTickets();
+                this.searchQuery = '';
+                this.filterTickets();
             },
             searchSuggestions() {
                 fetch(`https://api.datamuse.com/sug?s=${this.data.subject}`).then(res => res.json()).then(data => {
@@ -593,18 +663,19 @@
                 });
             },
             loading(action = true) {
-                if (action) {
-                    Swal.fire({
-                        title: 'Processing...',
-                        text: 'Please wait while we process your request.',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-                } else {
-                    Swal.close();
-                }
+                Pace.start();
+                // if (action) {
+                //     Swal.fire({
+                //         title: 'Processing...',
+                //         text: 'Please wait while we process your request.',
+                //         allowOutsideClick: false,
+                //         didOpen: () => {
+                //             Swal.showLoading();
+                //         }
+                //     });
+                // } else {
+                //     Swal.close();
+                // }
             },
             updateUrgency(id, urgency) {
                 if (!confirm('Are you sure you want to update this ticket ugency?')) {
@@ -676,6 +747,7 @@
                     this.enableSearchDepartments = this.enableSearchDepartments ? false : true;
                 } else {
                     this.enableSearchUsers = this.enableSearchUsers ? false : true;
+
                 }
             },
             triggerSearchResults(input = 'user') {
@@ -694,7 +766,7 @@
 
                 if (input === 'user') {
                     this.searchUsersResult = this.users.filter(item =>
-                        item.full_name.toLowerCase().includes(this.searchUsersInput.toLowerCase())
+                        item.full_name.toLowerCase().includes(this.searchUsersInput.toLowerCase()) || item.email.toLowerCase().includes(this.searchUsersInput.toLowerCase())
                     );
                 } else {
                     this.searchDepartmentsResult = this.departments.filter(item =>
@@ -715,13 +787,118 @@
                     this.enableSearchDepartments = false;
                 }
             },
+            togglePage(url) {
+                this.page = url.replace('/?page=', '');
+                this.filterTickets();
+            },
+            ai(action = null, status = null) {
+
+                if (!this.data.description && !this.stateDetails) {
+                    toastr.error('Please provide your description');
+                    return;
+                }
+
+                const actionButtonId = status ? action + '-' + 'status-button' : action + '-button';
+                const actionButton = document.getElementById(actionButtonId);
+
+                const newForm = new FormData();
+                const defaultLabel = actionButton.innerHTML;
+
+                newForm.append('text', status ? this.stateDetails : this.data.description);
+                newForm.append('action', action);
+                newForm.append('short_description', this.data.subject);
+
+                actionButton.disabled = true;
+                actionButton.textContent = 'Please wait...';
+
+                axios.post(`<?= $api ?>/ai.php`, newForm, {
+                    headers: {
+                        "X-API-Key": "<?= $api_key ?>"
+                    }
+                }).then(res => {
+                    if (status) {
+                        this.data.description = null;
+                        this.stateDetails = res.data.result;
+                    } else {
+                        this.data.description = res.data.result;
+                        this.stateDetails = null;
+                    }
+
+                    actionButton.disabled = false;
+                    actionButton.innerHTML = defaultLabel;
+                    this.responseMessage = res.data.message;
+
+                    // setTimeout(() => {
+                    //     this.responseMessage = '';
+                    // }, 2000);
+                })
+            },
+            fetchGroups() {
+                axios.get('<?= $api ?>/groups.php?action=all', {
+                    headers: {
+                        "X-API-Key": "<?= $api_key ?>"
+                    }
+                }).then(res => {
+                    this.groups = res.data;
+                })
+            },
+            selectedGroup(id) {
+                this.data.reassign_to_group_id = id;
+                this.enableSearchGroup = false;
+                this.searchGroupsInput = '';
+            },
+            formatCash() {
+                let amount = this.data.amount;
+
+                if (typeof amount !== 'number') {
+                    // Attempt to convert to number if it's a string, or return invalid
+                    const num = parseFloat(amount);
+                    if (isNaN(num)) {
+                        return '';
+                    }
+                    amount = num;
+                }
+
+                const isNegative = amount < 0;
+                let absoluteAmount = Math.abs(amount);
+
+                // Round to 2 decimal places to avoid floating point issues
+                absoluteAmount = Math.round(absoluteAmount * 100) / 100;
+
+                // Convert to string and split into integer and decimal parts
+                let [integerPart, decimalPart] = absoluteAmount.toFixed(2).split('.');
+
+                // Add commas to the integer part
+                integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+                return (isNegative ? '-' : '') + integerPart + '.' + decimalPart;
+            },
+            handleFormatCash() {
+                this.data.amount = this.formatCash();
+            },
+            additionalInfo(ticket) {
+                if (ticket.claimant_name) {
+                    return `
+                    <span><strong>Claimant Name:</strong> ${ticket.claimant_name}</span> <br>
+                    <span><strong>Client Name:</strong> ${ticket.client_name}</span> <br>
+                    <span><strong>Amount:</strong> ₱${ticket.amount}</span> 
+                    `;
+                }
+
+                return 'No additional info';
+            }
         },
         mounted() {
             this.filterTickets();
             this.fetchUsers();
             this.fetchDepartments();
             this.fetchCategories();
-
+            this.fetchGroups();
+        },
+        computed: {
+            filteredGroups() {
+                return this.groups.filter(group => group.group_name.toLowerCase().includes(this.searchGroupsInput) && group.group_id !== this.ticket.group_id);
+            }
         }
     })
 </script>

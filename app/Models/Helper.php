@@ -62,4 +62,35 @@ class Helper
         }
         return SITE_URL . '/api/storage/';
     }
+    public function detectURLString(string $text): string
+    {
+        // The regex pattern to find URLs.
+        // It looks for:
+        // (https?|ftp)://  - Optional protocol (http, https, ftp)
+        // ([^\s\b\n\r]+)   - One or more characters that are not whitespace or word boundary,
+        //                     capturing the URL itself.
+        $pattern = '/(https?|ftp):\/\/([^\s\b\n\r]+)/i';
+
+        // Use preg_replace_callback to process each found URL
+        $cleanedText = preg_replace_callback($pattern, function ($matches) {
+            $url = $matches[0]; // The entire matched URL (e.g., "https://example.com/path")
+            $displayLink = $url; // Default display text is the full URL
+
+            // Optional: Shorten the display text if the URL is very long
+            // You might want to customize this logic.
+            // For example, if it's a SharePoint link, you might want to show "Document Link"
+            if (strlen($url) > 50) {
+                $displayLink = substr($url, 0, 10) . '...' . substr($url, -15);
+            }
+
+            // Return the HTML anchor tag
+            return "<a href='{$url}' target='_blank' rel='noopener noreferrer'>{$displayLink}</a>";
+        }, $text);
+
+        // Additionally, consider converting newlines to <br> tags for display in HTML
+        // if your input string might contain line breaks.
+        $cleanedText = nl2br($cleanedText);
+
+        return $cleanedText;
+    }
 }

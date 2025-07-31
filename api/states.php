@@ -5,11 +5,16 @@ include __DIR__ . '/../config/headers.php';
 
 use Models\State;
 use Models\Activity;
+use Models\Helper;
 use Models\Ticket;
 use Models\Session;
 use Models\User;
+use Models\Notification;
+use Illuminate\Support\Facades\DB;
 
 $activity = new Activity();
+$helper = new Helper();
+
 
 
 if ($_GET['action'] === 'get') {
@@ -33,32 +38,6 @@ if ($_GET['action'] === 'get') {
     echo json_encode($states);
 }
 
-function autoLinkText(string $text, int $length_limit = 50): string
-{
-    if (empty($text)) {
-        return '';
-    }
-
-    // A more concise and efficient regex for URLs
-    $url_regex = '/\b((https?:\/\/|www\.)[^\s()<>]+(?:\([\w\d]+\)|(?:[^`!()\[\]{};:\'".,<>?«»“”‘’\s]|\((?:[^`!()\[\]{};:\'".,<>?«»“”‘’\s]|\(.+\))+\)))*)/i';
-
-    $linked_text = preg_replace_callback(
-        $url_regex,
-        function (array $matches) use ($length_limit): string {
-            $url = $matches[1];
-            // Prepend 'http://' only if the URL doesn't start with http(s)://
-            $href = (strpos($url, 'http://') === 0 || strpos($url, 'https://') === 0) ? $url : 'http://' . $url;
-
-            // Determine display text: full URL if short enough, otherwise 'Link'
-            $display_text = (strlen($url) <= $length_limit) ? htmlspecialchars($url) : 'Link';
-
-            return '<a href="' . htmlspecialchars($href) . '" target="_blank" rel="noopener noreferrer">' . $display_text . '</a>';
-        },
-        $text
-    );
-
-    return $linked_text;
-}
 
 if ($_GET['action'] === 'submit') {
     $ticket_id = $_POST['ticket_id'] ?? null;
@@ -67,35 +46,68 @@ if ($_GET['action'] === 'submit') {
     $reassigned_user = $_POST['reassigned_user'] ?? null;
 
     $session = new Session();
-    $updated_by = $session->session_user()->user_id;
+    $session = $session->session_user();
+    $updated_by = $session->user_id;
 
-    $ticket = Ticket::where('ticket_id', '=', $ticket_id)->first();
+    $ticket = Ticket::where('ticket_id', $ticket_id)->first();
 
     $reassigned_user_full_name = User::where('user_id', $reassigned_user)->first()->full_name ?? null;
 
-
+    if (empty($ticket->user_id)) {
+        $ticket->user_id = $updated_by ?? null;
+    }
 
     if ($status === 'Reassign') {
-        $details = "Reassign From $ticket->assigned_user to $reassigned_user_full_name <br/><br/> $details";
-		$ticket->user_id = $reassigned_user;
         $status = 'In Progress';
+        $assign_by = $_POST['assign_by'] ?? null;
+
+        if ($assign_by === 'user') {
+            $ticket->user_id = $ticket->user_id;
+            $details = "Reassign From $ticket->assigned_user to $reassigned_user_full_name <br/><br/> $details";
+        } else if ($assign_by === 'group') {
+            $current_ticket_group_id = $ticket->creator->group;
+            $new_group_id = $_POST['assigned_group_id'] ?? null;
+            $new_group_name = $_POST['assigned_group_name'] ?? null;
+            $ticket->user_id = null;
+
+            $ticket->group_id = $new_group_id;
+            $details = "Reassign from <strong>{$ticket->creator->group->group_name}</strong> group to <strong>{$new_group_name}</strong> <br/><br/> $details";
+        }
     }
 
     $ticket->status = $status;
 
     $state = new State();
     $state->ticket_id = $ticket_id;
-    $state->note = autoLinkText($details);
+    $state->note = $helper->detectURLString($details);
     $state->status = $status;
     $state->updated_by = $updated_by;
 
     $activity->addActivityLog('ticket', "update ticket #$ticket_id status to $status");
 
     try {
+        $capsule::beginTransaction();
+
         $ticket->save();
         $state->save();
+
+
+        if ($state->updated_by !== $session->user_id) {
+            $notification = new Notification();
+            $notification->notif_for = $ticket->user_id;
+            $notification->notif_by = $state->updated_by;
+            $notification->title = "{$state->ticket_id} ticket updated";
+            $notification->ticket_id = $ticket->ticket_id;
+            $notification->model = 'ticket';
+            $notification->save();
+        }
+
+
+        $capsule::commit();
+
         echo json_encode(['status' => 'success', 'message' => 'Ticket status submitted successfully.']);
     } catch (PDOException $e) {
+        $capsule::rollBack();
         echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
     }
 }
