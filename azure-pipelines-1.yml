@@ -8,7 +8,7 @@ trigger:
 
 variables:
   # Azure Resource Manager connection created during pipeline creation
-  azureSubscription: 'c18c47d1-b701-4b67-8f76-33fda453db15'
+  azureSubscription: 'f1dea7e9-362d-4b78-a275-072c0731ee72'
 
   # Web app name
   webAppName: 'imus-it-ticket-system'
