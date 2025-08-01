@@ -1,6 +1,5 @@
 # PHP as Linux Web App on Azure
 # Build, package and deploy your PHP project to Azure Linux Web App.
-# Docs: https://docs.microsoft.com/azure/devops/pipelines/languages/php
 
 trigger:
 - main
@@ -13,7 +12,7 @@ variables:
 
 stages:
 - stage: Build
-  displayName: 'Build Stage'
+  displayName: Build stage
   variables:
     phpVersion: '8.2'
   jobs:
@@ -30,21 +29,14 @@ stages:
         sudo update-alternatives --set phar.phar /usr/bin/phar.phar$(phpVersion)
         php -v
       workingDirectory: $(rootFolder)
-      displayName: 'Set PHP version to $(phpVersion)'
-
-    - script: |
-        sudo apt-get update
-        sudo apt-get install -y php$(phpVersion)-gd
-        php -m | grep gd
-      workingDirectory: $(rootFolder)
-      displayName: 'Install GD PHP extension'
+      displayName: 'Use PHP version $(phpVersion)'
 
     - script: composer install --no-interaction --prefer-dist --optimize-autoloader
       workingDirectory: $(rootFolder)
       displayName: 'Composer install'
 
     - task: ArchiveFiles@2
-      displayName: 'Archive project files'
+      displayName: 'Archive files'
       inputs:
         rootFolderOrFile: '$(rootFolder)'
         includeRootFolder: false
@@ -53,7 +45,7 @@ stages:
         replaceExistingArchive: true
 
     - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
-      displayName: 'Upload build artifact'
+      displayName: 'Upload package'
       artifact: drop
 
 - stage: Deploy
@@ -71,7 +63,7 @@ stages:
         deploy:
           steps:
           - task: AzureWebApp@1
-            displayName: 'Deploy Azure Web App: imus-it-ticket-system'
+            displayName: 'Deploy Azure Web App : imus-it-ticket-system'
             inputs:
               azureSubscription: $(azureSubscription)
               appName: $(webAppName)
