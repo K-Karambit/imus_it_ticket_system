@@ -13,6 +13,7 @@ use Illuminate\Support\Carbon;
 use Models\Notification;
 use Models\State;
 use Models\User;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 $activity = new Activity();
 $helper = new Helper();
@@ -261,9 +262,39 @@ if ($action === 'filter') {
     $limit = $_GET['limit'] ?? 10;
     $page = $_GET['page'] ?? 1;
 
-    $result = $ticket->simplePaginate($limit, ['*'], 'page', $page);
-    echo json_encode($result);
-    //echo json_encode($ticket->orderBy('id', 'desc')->get());
+    // $paginate = $ticket->simplePaginate($limit, ['*'], 'page', $page);
+    // $totalPage = $ticket->count();
+    // echo json_encode(['data' => $paginate, 'totalPage' => $totalPage]);
+
+
+
+    // Get full filtered collection first
+    $allTickets = $ticket->get();
+
+    // Manual pagination setup
+    $limit = (int) ($_GET['limit'] ?? 10);
+    $page = (int) ($_GET['page'] ?? 1);
+    $offset = ($page - 1) * $limit;
+
+    // Slice the data manually
+    $items = $allTickets->slice($offset, $limit)->values(); // `values()` resets keys
+
+    // Create paginator instance
+    $paginate = new LengthAwarePaginator(
+        $items,
+        $allTickets->count(),
+        $limit,
+        $page,
+        ['path' => $_SERVER['REQUEST_URI']]
+    );
+
+    // Return as JSON
+    echo json_encode([
+        'data' => $paginate->items(),
+        'current_page' => $paginate->currentPage(),
+        'total' => $paginate->total(),
+        'total_page' => $paginate->lastPage(),
+    ]);
 }
 
 
@@ -319,10 +350,22 @@ if ($action === 'export') {
 
 
     if ($session->is_super_admin != 1) {
-        $userIds = User::where('group_id', $session->group_id)->get()->pluck('user_id')->toArray();
-        $logsTicketIds = State::whereIn('updated_by', array_unique($userIds))->get()->pluck('ticket_id')->toArray();
-        //$ticket->whereRaw('FIND_IN_SET(?, group_id)', [$session->group_id]);
-        $ticket->whereIn('ticket_id', array_unique($logsTicketIds));
+        $groupId = $session->group_id;
+
+        // Get user IDs in the same group
+        $userIds = User::where('group_id', $groupId)->pluck('user_id');
+
+        // Get ticket IDs from states updated by those users
+        $ticketIds = State::whereIn('updated_by', $userIds)->pluck('ticket_id');
+
+        // Get group IDs from those tickets
+        $fetchedGroupIds = Ticket::whereIn('ticket_id', $ticketIds)->pluck('group_id');
+
+        // Combine original group and fetched groups, removing duplicates
+        $allGroupIds = collect([$groupId])->merge($fetchedGroupIds)->unique();
+
+        // Apply group ID filter to the ticket query
+        $ticket->whereIn('group_id', $allGroupIds);
     }
     if ($post_user_id != null) {
         $ticket->where('user_id', '=', $post_user_id);

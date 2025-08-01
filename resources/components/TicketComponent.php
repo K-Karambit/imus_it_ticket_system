@@ -220,27 +220,22 @@
 
                     <!-- Pagination -->
                     <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap">
-                        <div class="text-muted">Page {{ tickets.current_page }}</div>
+                        <div class="text-dark"><b>{{ tickets.current_page ?? 0 }}/{{ totalPage  }}</b></div>
                         <nav aria-label="Page navigation">
                             <ul class="pagination mb-0">
-                                <li class="page-item" :class="{ 'disabled': !tickets.prev_page_url }">
-                                    <a class="page-link" href="#" @click.prevent="togglePage(tickets.prev_page_url)"
-                                        :tabindex="!tickets.prev_page_url ? -1 : 0"
-                                        :aria-disabled="!tickets.prev_page_url ? 'true' : 'false'">
+                                <li class="page-item" :class="{ 'disabled': currentPage === 1 }">
+                                    <a class="page-link" href="#" @click.prevent="togglePage(currentPage - 1)">
                                         <i class="fa fa-angle-left me-1"></i> Previous
                                     </a>
                                 </li>
-                                <li class="page-item" :class="{ 'disabled': !tickets.next_page_url }">
-                                    <a class="page-link" href="#" @click.prevent="togglePage(tickets.next_page_url)"
-                                        :tabindex="!tickets.next_page_url ? -1 : 0"
-                                        :aria-disabled="!tickets.next_page_url ? 'true' : 'false'">
+                                <li class="page-item" :class="{ 'disabled': currentPage === totalPage }">
+                                    <a class="page-link" href="#" @click.prevent="togglePage(currentPage + 1)">
                                         Next <i class="fa fa-angle-right ms-1"></i>
                                     </a>
                                 </li>
                             </ul>
                         </nav>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -321,7 +316,7 @@
             selectedDepartments: [], // Array to store selected department ids
             selectedUrgencies: [], // Array to store selected urgency levels
             selectedCategories: [], // Array to store selected category ids
-            selectedStatuses: [], // Array to store selected status values
+            selectedStatuses: ['New', 'In Progress', 'On Hold'], // Array to store selected status values
             selectedUsers: [],
 
             startDate: '',
@@ -353,8 +348,15 @@
 
 
             responseMessage: '',
+            totalPage: 0,
+            currentPage: 1,
         },
         methods: {
+            togglePage(newPage) {
+                if (newPage < 1 || newPage > this.totalPage) return;
+                this.currentPage = newPage;
+                this.filterTickets(); // Or whatever method loads your data
+            },
             filterTickets() {
                 const params = new URLSearchParams(window.location.search);
                 const route = params.get('route');
@@ -377,7 +379,7 @@
                         user: JSON.stringify(this.selectedUsers),
                         startDate: this.startDate,
                         endDate: this.endDate,
-                        page: this.page,
+                        page: this.currentPage,
                         searchQuery: this.searchQuery,
                     },
                     headers: {
@@ -387,6 +389,9 @@
                     this.loading(false);
                     $('#tickets-data').DataTable().destroy();
                     this.tickets = response.data;
+                    this.totalPage = response.data.total_page;
+                    this.currentPage = response.data.current_page;
+                    this.curre
                     Vue.nextTick(() => {
                         $('#tickets-data').DataTable({
                             "paging": false,
@@ -787,10 +792,10 @@
                     this.enableSearchDepartments = false;
                 }
             },
-            togglePage(url) {
-                this.page = url.replace('/?page=', '');
-                this.filterTickets();
-            },
+            // togglePage(url) {
+            //     this.page = url.replace('/?page=', '');
+            //     this.filterTickets();
+            // },
             ai(action = null, status = null) {
 
                 if (!this.data.description && !this.stateDetails) {
