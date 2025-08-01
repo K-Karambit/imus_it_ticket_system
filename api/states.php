@@ -62,7 +62,7 @@ if ($_GET['action'] === 'submit') {
         $assign_by = $_POST['assign_by'] ?? null;
 
         if ($assign_by === 'user') {
-            $ticket->user_id = $ticket->user_id;
+            $ticket->user_id = $reassigned_user;
             $details = "Reassign From $ticket->assigned_user to $reassigned_user_full_name <br/><br/> $details";
         } else if ($assign_by === 'group') {
             $current_ticket_group_id = $ticket->creator->group;
