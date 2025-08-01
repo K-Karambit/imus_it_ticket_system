@@ -15,6 +15,7 @@ define('DB_PASS', 'root-123');
 define('SSL_MODE', 'REQUIRED');
 define('MYSQL_ATTR_SSL_CA', __DIR__ . '/config/DigiCertGlobalRootCA.crt.pem');
 
+define('GEMINI_KEY', "AIzaSyAt7REUnaRPHp7H6mTjBeL_p5umzcZw7rw");
 
 define('AZURE_APP_ID', 'abfed74c-1e74-4e39-972b-3fe0e9568db3');
 define('AZURE_CLIENT_SECRET', 'Ybq8Q~3YYVWrWzFvwPbJHZOAP.Pm3sExqxK_ta_a');
