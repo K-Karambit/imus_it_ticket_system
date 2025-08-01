@@ -3,10 +3,7 @@
         "illuminate/database": "*",
         "laravel/framework": "^11.37",
         "illuminate/support": "*",
-<<<<<<< HEAD
-=======
         "maatwebsite/excel": "^1.1",
->>>>>>> fd86edc7ff5c66002e7d7c971770ed3e65b5670c
         "shuchkin/simplexlsxgen": "^1.4",
         "vlucas/phpdotenv": "^5.6",
         "predis/predis": "^3.0",
