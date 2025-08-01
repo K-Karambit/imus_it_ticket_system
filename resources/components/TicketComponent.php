@@ -14,7 +14,7 @@
                         <div class="col-lg-3">
                             <label for="department" class="form-label">Search</label>
                             <div class="dropdown">
-                                <input type="text" class="form-control" placeholder="Search..." v-model="searchQuery">
+                                <input type="text" class="form-control" placeholder="Search..." @input.prevent="filterTickets" v-model="searchQuery">
                             </div>
                         </div>
 
