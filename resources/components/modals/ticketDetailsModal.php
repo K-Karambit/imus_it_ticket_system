@@ -87,6 +87,15 @@
                             <p><strong>Created by:</strong> {{ ticket.added_by_name }}</p>
                             <p><strong>Date Created:</strong> {{ ticket.date_added }}</p>
                         </div>
+                        <hr>
+                        <!-- <button class="btn btn-secondary" data-dismiss="modal">Close</button> -->
+                        <?php if (permission('tickets', 'w', $session_user->role)) : ?>
+                            <div v-if="!['Cancelled'].includes(ticket.status)">
+                                <button class="btn btn-primary" href="#updateStatusModal" data-toggle="modal" @click="$('#ticketDetailsModal').modal('hide')">
+                                    Update
+                                </button>
+                            </div>
+                        <?php endif; ?>
                     </div>
 
                     <!-- Right Section -->
@@ -123,16 +132,9 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <?php if (permission('tickets', 'w', $session_user->role)) : ?>
-                    <div v-if="!['Cancelled'].includes(ticket.status)">
-                        <button class="btn btn-primary" href="#updateStatusModal" data-toggle="modal" @click="$('#ticketDetailsModal').modal('hide')">
-                            Update
-                        </button>
-                    </div>
-                <?php endif; ?>
-            </div>
+            <!-- <div class="modal-footer">
+
+            </div> -->
         </div>
     </div>
 </div>
