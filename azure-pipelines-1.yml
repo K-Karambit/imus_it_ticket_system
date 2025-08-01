@@ -1,44 +1,24 @@
 # PHP as Linux Web App on Azure
 # Build, package and deploy your PHP project to Azure Linux Web App.
-<<<<<<< HEAD
-=======
-# Add steps that run tests and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/php
->>>>>>> fd86edc7ff5c66002e7d7c971770ed3e65b5670c
+# Docs: https://docs.microsoft.com/azure/devops/pipelines/languages/php
 
 trigger:
 - main
 
 variables:
-<<<<<<< HEAD
-  azureSubscription: 'ff71ebfd-fd04-4e31-ae22-a652e3bd534d'
+  azureSubscription: 'f1dea7e9-362d-4b78-a275-072c0731ee72'
   webAppName: 'imus-it-ticket-system'
   environmentName: 'imus-it-ticket-system'
-=======
-  # Azure Resource Manager connection created during pipeline creation
-  azureSubscription: 'c18c47d1-b701-4b67-8f76-33fda453db15'
-
-  # Web app name
-  webAppName: 'imus-it-ticket-system'
-
-  # Environment name
-  environmentName: 'imus-it-ticket-system'
-
-  # Root folder under which your composer.json file is available.
->>>>>>> fd86edc7ff5c66002e7d7c971770ed3e65b5670c
   rootFolder: $(System.DefaultWorkingDirectory)
 
 stages:
 - stage: Build
-  displayName: Build stage
+  displayName: 'Build Stage'
   variables:
     phpVersion: '8.2'
   jobs:
   - job: BuildJob
-<<<<<<< HEAD
     displayName: 'Build Job'
-=======
->>>>>>> fd86edc7ff5c66002e7d7c971770ed3e65b5670c
     pool:
       name: my-personal-computer
     steps:
@@ -48,20 +28,23 @@ stages:
         sudo update-alternatives --set phpdbg /usr/bin/phpdbg$(phpVersion)
         sudo update-alternatives --set php-cgi /usr/bin/php-cgi$(phpVersion)
         sudo update-alternatives --set phar.phar /usr/bin/phar.phar$(phpVersion)
-<<<<<<< HEAD
         php -v
-=======
-        php -version
->>>>>>> fd86edc7ff5c66002e7d7c971770ed3e65b5670c
       workingDirectory: $(rootFolder)
-      displayName: 'Use PHP version $(phpVersion)'
+      displayName: 'Set PHP version to $(phpVersion)'
+
+    - script: |
+        sudo apt-get update
+        sudo apt-get install -y php$(phpVersion)-gd
+        php -m | grep gd
+      workingDirectory: $(rootFolder)
+      displayName: 'Install GD PHP extension'
 
     - script: composer install --no-interaction --prefer-dist --optimize-autoloader
       workingDirectory: $(rootFolder)
       displayName: 'Composer install'
 
     - task: ArchiveFiles@2
-      displayName: 'Archive files'
+      displayName: 'Archive project files'
       inputs:
         rootFolderOrFile: '$(rootFolder)'
         includeRootFolder: false
@@ -70,7 +53,7 @@ stages:
         replaceExistingArchive: true
 
     - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
-      displayName: 'Upload package'
+      displayName: 'Upload build artifact'
       artifact: drop
 
 - stage: Deploy
@@ -79,10 +62,7 @@ stages:
   condition: succeeded()
   jobs:
   - deployment: DeploymentJob
-<<<<<<< HEAD
     displayName: 'Deployment Job'
-=======
->>>>>>> fd86edc7ff5c66002e7d7c971770ed3e65b5670c
     pool:
       name: my-personal-computer
     environment: $(environmentName)
@@ -91,17 +71,9 @@ stages:
         deploy:
           steps:
           - task: AzureWebApp@1
-<<<<<<< HEAD
-            displayName: 'Deploy Azure Web App : imus-it-ticket-system'
-=======
-            displayName: 'Deploy Azure Web App : svs-v2'
->>>>>>> fd86edc7ff5c66002e7d7c971770ed3e65b5670c
+            displayName: 'Deploy Azure Web App: imus-it-ticket-system'
             inputs:
               azureSubscription: $(azureSubscription)
               appName: $(webAppName)
               appType: webAppLinux
-<<<<<<< HEAD
               package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
-=======
-              package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
->>>>>>> fd86edc7ff5c66002e7d7c971770ed3e65b5670c
