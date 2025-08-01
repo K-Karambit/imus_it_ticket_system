@@ -50,6 +50,7 @@ if ($_GET['action'] === 'submit') {
     $updated_by = $session->user_id;
 
     $ticket = Ticket::where('ticket_id', $ticket_id)->first();
+    $assigned_user = $ticket->assigned_user ?? null;
 
     $reassigned_user_full_name = User::where('user_id', $reassigned_user)->first()->full_name ?? null;
 
@@ -63,7 +64,7 @@ if ($_GET['action'] === 'submit') {
 
         if ($assign_by === 'user') {
             $ticket->user_id = $reassigned_user;
-            $details = "Reassign From $ticket->assigned_user to $reassigned_user_full_name <br/><br/> $details";
+            $details = "Reassign From {$assigned_user} to {$reassigned_user_full_name} <br/><br/> $details";
         } else if ($assign_by === 'group') {
             $current_ticket_group_id = $ticket->creator->group;
             $new_group_id = $_POST['assigned_group_id'] ?? null;
