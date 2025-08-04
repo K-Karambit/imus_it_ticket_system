@@ -10,7 +10,8 @@ use Models\Ticket;
 use Models\Session;
 use Models\User;
 use Models\Notification;
-use Illuminate\Support\Facades\DB;
+use Models\TicketOldGroup;
+use Models\TicketOldUser;
 
 $activity = new Activity();
 $helper = new Helper();
@@ -49,6 +50,9 @@ if ($_GET['action'] === 'submit') {
     $session = $session->session_user();
     $updated_by = $session->user_id;
 
+    $executeOldGroup = false;
+    $executeOldUser = false;
+
     $ticket = Ticket::where('ticket_id', $ticket_id)->first();
     $assigned_user = $ticket->assigned_user ?? null;
 
@@ -65,14 +69,24 @@ if ($_GET['action'] === 'submit') {
         if ($assign_by === 'user') {
             $ticket->user_id = $reassigned_user;
             $details = "Reassign From {$assigned_user} to {$reassigned_user_full_name} <br/><br/> $details";
+
+            $ticketOldUser = new TicketOldUser();
+            $ticketOldUser->ticket_id = $ticket->ticket_id;
+            $ticketOldUser->user_id = $assigned_user;
+            $executeOldUser = true;
         } else if ($assign_by === 'group') {
             $current_ticket_group_id = $ticket->creator->group;
             $new_group_id = $_POST['assigned_group_id'] ?? null;
             $new_group_name = $_POST['assigned_group_name'] ?? null;
             $ticket->user_id = null;
 
+            $ticketOldGroup = new TicketOldGroup();
+            $ticketOldGroup->ticket_id = $ticket->ticket_id;
+            $ticketOldGroup->group_id = $current_ticket_group_id->group_id;
+            $executeOldGroup = true;
+
             $ticket->group_id = $new_group_id;
-            $details = "Reassign from <strong>{$ticket->creator->group->group_name}</strong> group to <strong>{$new_group_name}</strong> <br/><br/> $details";
+            $details = "Reassign from <strong>{$ticket->creator->group->group_name}</strong> to <strong>{$new_group_name}</strong> <br/><br/> $details";
         }
     }
 
@@ -92,7 +106,12 @@ if ($_GET['action'] === 'submit') {
         $ticket->save();
         $state->save();
 
-
+        if ($executeOldGroup) {
+            $ticketOldGroup->save();
+        }
+        if ($executeOldUser) {
+            $ticketOldUser->save();
+        }
         if ($state->updated_by !== $session->user_id) {
             $notification = new Notification();
             $notification->notif_for = $ticket->user_id;

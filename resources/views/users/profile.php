@@ -26,7 +26,7 @@
   </section> -->
 
 
-  <section class="content">
+  <section class="">
 
 
     <?php include __DIR__ . '/../../components/overviewComponent.php';  ?>

@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Ticket extends Model
 {
-    protected $table = 'tickets';  // The table associated with the model
     protected $fillable = ['ticket_id', 'user_id', 'subject', 'description', 'department', 'urgency', 'status', 'added_by', 'category', 'claimant_name', 'client_name', 'amount'];
     protected $appends = ['date_added', 'assigned_user', 'short_description', 'department_name', 'added_by_name', 'category_name'];
     protected $with = ['creator', 'assigned', 'department', 'category', 'group'];
@@ -17,7 +16,7 @@ class Ticket extends Model
     }
     function getAssignedUserAttribute()
     {
-        return User::where('user_id', '=', end(explode(',', $this->user_id)))->first()->full_name ?? 'No User Assigned';
+        return User::where('user_id', $this->user_id)->first()->full_name ?? 'No User Assigned';
     }
     function getDepartmentNameAttribute()
     {

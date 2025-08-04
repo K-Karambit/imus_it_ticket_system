@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="plugins/dataTables/dataTables.bootstrap4.min.css">
   <link rel="stylesheet" href="plugins/dataTables/responsive.bootstrap4.min.css">
   <link rel="stylesheet" href="plugins/dataTables/buttons.bootstrap4.min.css">
-  <link rel="stylesheet" href="public/assets/css/adminlte.min.css?v=3.2.0">
+  <link rel="stylesheet" href="public/assets/css/adminlte.css?v=3.2.0">
   <script src="plugins/jquery/jquery.min.js"></script>
   <link rel="stylesheet" href="plugins/toastr/toastr.css">
   <script src="plugins/toastr/toastr.min.js"></script>
@@ -70,6 +70,32 @@
       overflow: hidden;
     }
   </style>
+  <style>
+    /* Main Sidebar */
+    #main-sidebar .nav-link {
+      padding: 10px 15px;
+      /* Removed the transition property */
+    }
+
+    #main-sidebar .nav-link:hover {
+      /* Set hover color to be the same as default */
+      background-color: transparent;
+      border-radius: 5px;
+    }
+
+    #main-sidebar .nav-link.active {
+      background-color: #0d6efd;
+      /* Keep the active color */
+      border-radius: 5px;
+    }
+
+    /* Dropdown Menu */
+    .dropdown-menu-dark a.dropdown-item:hover {
+      /* Set hover color to be the same as default */
+      background-color: transparent;
+      color: #fff;
+    }
+  </style>
 </head>
 
 <body class="hold-transition sidebar-mini">
@@ -90,6 +116,11 @@
       .form-control,
       .table {
         border-radius: 0px;
+      }
+
+      .nav-link:hover {
+        background: none;
+        color: #000;
       }
     </style>
 
@@ -119,7 +150,7 @@
 
     <style>
       .pace .pace-progress {
-     
+
         height: 3px !important;
         /* Adjust this value to your desired height */
       }

@@ -158,20 +158,12 @@
                                         </li>
                                     </ul>
                                 </div>
-
-
                             </div>
-
-
                             <select class="form-control form-select" v-model="data.user_id" name="user_id" id="user_id" required>
                                 <option value="">select user</option>
                                 <option v-for="(user,index) in users" :value="user.user_id">{{user.full_name}}</option>
                             </select>
                         </div>
-
-
-
-
 
                         <div class="form-group col">
                             <label for="department">Department <span class="text-danger">*</span></label>
@@ -189,7 +181,6 @@
                                     </ul>
                                 </div>
                             </div>
-
                             <select class="form-control form-select" v-model="data.department" name="department" id="department"
                                 required>
                                 <option value="">select department</option>
@@ -200,23 +191,7 @@
                             <option v-for="(department, index) in departments" :value="department.name">
                         </datalist> -->
                         </div>
-
-
-
-
-
-
-
-
-
                     </div>
-
-
-
-
-
-
-
                     <div v-if="data.department === 'PUBLIC' ">
                         <p class="fw-bold">Additional Fields</p>
                         <div class="form-group">
@@ -244,13 +219,6 @@
                             </div>
                         </div>
                     </div>
-
-
-
-
-
-
-
                 </div>
                 <div class="modal-footer">
                     <button type="button" data-dismiss="modal" class="btn btn-secondary">Close</button>
