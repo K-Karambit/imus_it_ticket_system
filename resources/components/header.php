@@ -20,7 +20,7 @@
 
   <link rel="shortcut icon" href="<?= $helper->storage_url('it_logo.png') ?>" type="image/x-icon">
 
-  <title>CITRMU</title>
+  <title>CITRMU - SYSTEM</title>
 
 
   <!-- Include Select2 CSS -->
