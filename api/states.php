@@ -55,6 +55,7 @@ if ($_GET['action'] === 'submit') {
 
     $ticket = Ticket::where('ticket_id', $ticket_id)->first();
     $assigned_user = $ticket->assigned_user ?? null;
+    $current_assigned_user_id = $ticket->user_id;
 
     $reassigned_user_full_name = User::where('user_id', $reassigned_user)->first()->full_name ?? null;
 
@@ -72,7 +73,7 @@ if ($_GET['action'] === 'submit') {
 
             $ticketOldUser = new TicketOldUser();
             $ticketOldUser->ticket_id = $ticket->ticket_id;
-            $ticketOldUser->user_id = $assigned_user;
+            $ticketOldUser->user_id = $current_assigned_user_id;
             $executeOldUser = true;
         } else if ($assign_by === 'group') {
             $current_ticket_group_id = $ticket->creator->group;

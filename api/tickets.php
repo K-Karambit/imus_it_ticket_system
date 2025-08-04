@@ -100,7 +100,7 @@ if ($action === 'user_ticket') {
 
 
 
-// --- Your Existing Add Ticket Logic (No changes needed here for link detection) ---
+
 if ($action === 'add') {
     $ticket = new Ticket();
     $added_by_user_id = Session::session_user()->user_id;
@@ -120,7 +120,6 @@ if ($action === 'add') {
     $ticket->department = $department_id;
     $ticket->group_id = $user_group_id;
 
-    // Assuming $activity is available
     $activity->addActivityLog('ticket', "added new ticket #$generated_ticket_id");
 
     try {
@@ -152,7 +151,6 @@ if ($action === 'add') {
         echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
     }
 }
-// --- End of Add Ticket Logic ---
 
 
 
@@ -207,7 +205,6 @@ if ($action === 'filter') {
             ->pluck('ticket_id')
             ->unique()
             ->toArray();
-
 
         $ticket->whereIn('ticket_id', $ticketIdsArray);
     }
@@ -714,7 +711,7 @@ if ($action === 'overview') {
         $ticketIdsArray = $ticketIds1->merge($ticketIds2)->unique()->values()->toArray();
 
         // Apply filter
-        $ticket->whereIn('ticket_id', $ticketIdsArray);
+        $tickets->whereIn('ticket_id', $ticketIdsArray);
     }
 
     $tickets = $tickets->get();
@@ -771,7 +768,7 @@ if ($action === 'counts') {
         $ticketIdsArray = $ticketIds1->merge($ticketIds2)->unique()->values()->toArray();
 
         // Apply filter
-        $ticket->whereIn('ticket_id', $ticketIdsArray);
+        $baseQuery->whereIn('ticket_id', $ticketIdsArray);
     }
 
     $newTickets = $baseQuery->clone()->where('status', 'New')->count();
