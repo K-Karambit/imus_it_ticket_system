@@ -125,7 +125,24 @@
     </style>
 
 
+    <!-- Custom CSS -->
+    <style>
+      .modal-fullscreen {
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        max-width: none;
+      }
 
+      .modal-fullscreen .modal-content {
+        height: 100%;
+        border-radius: 0;
+      }
+
+      .modal-body {
+        overflow-y: auto;
+      }
+    </style>
     <!-- <script>
       $(document).ready(function() {
         $('select').chosen({
