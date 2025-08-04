@@ -1,20 +1,5 @@
 <div class="content-wrapper" id="departments-main">
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <!-- <h1>Departments</h1> -->
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a class="route-link" href="?route=/dashboard">Home</a></li>
-                        <li class="breadcrumb-item active">Departments</li>
-                    </ol>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section class="content">
+    <section class="">
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">

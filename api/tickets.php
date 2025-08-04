@@ -14,6 +14,7 @@ use Models\Notification;
 use Models\State;
 use Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Models\TicketOldGroup;
 
 $activity = new Activity();
 $helper = new Helper();
@@ -101,9 +102,9 @@ if ($action === 'user_ticket') {
 
 // --- Your Existing Add Ticket Logic (No changes needed here for link detection) ---
 if ($action === 'add') {
-    // ... (your existing ticket add logic) ...
     $ticket = new Ticket();
     $added_by_user_id = Session::session_user()->user_id;
+    $user_group_id = $_GET['user_group_id'] ?? $session->group_id;
 
     $ticket->fill($_POST);
     $ticket->subject = $helper->detectURLString($_POST['subject']);
@@ -112,13 +113,12 @@ if ($action === 'add') {
     $department_id = Department::where('name', 'like', $_POST['department'])->first()->id;
 
     $ticket_count = $ticket->count() + 1;
-
     $generated_ticket_id = str_pad($ticket_count, 7, "0", STR_PAD_LEFT);
 
     $ticket->ticket_id = $generated_ticket_id;
     $ticket->status = 'New';
     $ticket->department = $department_id;
-    $ticket->group_id = $session->group_id; // Assuming $session is available
+    $ticket->group_id = $user_group_id;
 
     // Assuming $activity is available
     $activity->addActivityLog('ticket', "added new ticket #$generated_ticket_id");
@@ -192,25 +192,25 @@ if ($action === 'filter') {
     $user_id = $post_user_id ? $post_user_id : $get_user_id;
 
     $ticket = Ticket::orderBy('id', 'desc');
-    if ($session->is_super_admin != 1) {
+
+    if (!$session->is_super_admin) {
         $groupId = $session->group_id;
 
-        // Get user IDs in the same group
-        $userIds = User::where('group_id', $groupId)->pluck('user_id');
+        $ticketIdsArray = DB::table('tickets')
+            ->select(DB::raw("ticket_id COLLATE utf8mb4_unicode_ci as ticket_id"))
+            ->where('group_id', $groupId)
+            ->union(
+                DB::table('ticket_old_groups')
+                    ->select(DB::raw("ticket_id COLLATE utf8mb4_unicode_ci as ticket_id"))
+                    ->where('group_id', $groupId)
+            )
+            ->pluck('ticket_id')
+            ->unique()
+            ->toArray();
 
-        // Get ticket IDs from states updated by those users
-        $ticketIds = State::whereIn('updated_by', $userIds)->pluck('ticket_id');
 
-        // Get group IDs from those tickets
-        $fetchedGroupIds = Ticket::whereIn('ticket_id', $ticketIds)->pluck('group_id');
-
-        // Combine original group and fetched groups, removing duplicates
-        $allGroupIds = collect([$groupId])->merge($fetchedGroupIds)->unique();
-
-        // Apply group ID filter to the ticket query
-        $ticket->whereIn('group_id', $allGroupIds);
+        $ticket->whereIn('ticket_id', $ticketIdsArray);
     }
-
     if ($user_id) {
         $ticket->where('user_id',  $user_id);
     }
@@ -266,8 +266,6 @@ if ($action === 'filter') {
     // $totalPage = $ticket->count();
     // echo json_encode(['data' => $paginate, 'totalPage' => $totalPage]);
 
-
-
     // Get full filtered collection first
     $allTickets = $ticket->get();
 
@@ -294,6 +292,7 @@ if ($action === 'filter') {
         'current_page' => $paginate->currentPage(),
         'total' => $paginate->total(),
         'total_page' => $paginate->lastPage(),
+        'total_tickets' => $allTickets->count(),
     ]);
 }
 
@@ -348,24 +347,23 @@ if ($action === 'export') {
 
     $ticket = Ticket::query();
 
-
-    if ($session->is_super_admin != 1) {
+    if (!$session->is_super_admin) {
         $groupId = $session->group_id;
 
-        // Get user IDs in the same group
-        $userIds = User::where('group_id', $groupId)->pluck('user_id');
+        // Avoid UNION and run two simpler queries
+        $ticketIds1 = DB::table('tickets')
+            ->where('group_id', $groupId)
+            ->pluck('ticket_id');
 
-        // Get ticket IDs from states updated by those users
-        $ticketIds = State::whereIn('updated_by', $userIds)->pluck('ticket_id');
+        $ticketIds2 = DB::table('ticket_old_groups')
+            ->where('group_id', $groupId)
+            ->pluck('ticket_id');
 
-        // Get group IDs from those tickets
-        $fetchedGroupIds = Ticket::whereIn('ticket_id', $ticketIds)->pluck('group_id');
+        // Merge results in PHP (faster than SQL union + collation casting)
+        $ticketIdsArray = $ticketIds1->merge($ticketIds2)->unique()->values()->toArray();
 
-        // Combine original group and fetched groups, removing duplicates
-        $allGroupIds = collect([$groupId])->merge($fetchedGroupIds)->unique();
-
-        // Apply group ID filter to the ticket query
-        $ticket->whereIn('group_id', $allGroupIds);
+        // Apply filter
+        $ticket->whereIn('ticket_id', $ticketIdsArray);
     }
     if ($post_user_id != null) {
         $ticket->where('user_id', '=', $post_user_id);
@@ -415,10 +413,6 @@ if ($action === 'export') {
                 ->orWhereHas('assigned', $userSearch)
                 ->orWhereHas('department', $departmentSearch);
         });
-    }
-
-    if ($session->is_super_admin != 1) {
-        $ticket->where('group_id', $session->group_id);
     }
 
     $results = $ticket->get();
@@ -700,12 +694,27 @@ if ($action === 'overview') {
     $id = $_GET['id'] != 'null' ? $_GET['id'] : $session->user_id;
     $tickets = Ticket::where('user_id', $id);
 
-    if ($session && $session->role == 1) {
-        $tickets->where('user_id', $session->user_id);
-    }
+    // if ($session && $session->role == 1) {
+    //     $tickets->where('user_id', $session->user_id);
+    // }
 
-    if ($session->is_super_admin != 1) {
-        $tickets->where('group_id', $session->group_id);
+    if (!$session->is_super_admin) {
+        $groupId = $session->group_id;
+
+        // Avoid UNION and run two simpler queries
+        $ticketIds1 = DB::table('tickets')
+            ->where('group_id', $groupId)
+            ->pluck('ticket_id');
+
+        $ticketIds2 = DB::table('ticket_old_groups')
+            ->where('group_id', $groupId)
+            ->pluck('ticket_id');
+
+        // Merge results in PHP (faster than SQL union + collation casting)
+        $ticketIdsArray = $ticketIds1->merge($ticketIds2)->unique()->values()->toArray();
+
+        // Apply filter
+        $ticket->whereIn('ticket_id', $ticketIdsArray);
     }
 
     $tickets = $tickets->get();
@@ -746,22 +755,24 @@ if ($action === 'counts') {
     $baseQuery = Ticket::query();
     $now = Carbon::now(); // Get current time once
 
-    // --- Authorization / Filtering Logic ---
-    // Assuming if super_admin OR role 1, they see ALL tickets.
-    // Otherwise, they only see tickets updated by users in their group.
-    if (!($session->is_super_admin == 1 || $session->role == 1)) {
-        // $userIds = User::where('group_id', $session->group_id)->pluck('user_id')->toArray();
+    if (!$session->is_super_admin) {
+        $groupId = $session->group_id;
 
-        // $logsTicketIds = State::whereIn('updated_by', array_unique($userIds))
-        //     ->pluck('ticket_id')
-        //     ->toArray();
+        // Avoid UNION and run two simpler queries
+        $ticketIds1 = DB::table('tickets')
+            ->where('group_id', $groupId)
+            ->pluck('ticket_id');
 
-        // $baseQuery->whereIn('ticket_id', array_unique($logsTicketIds));
+        $ticketIds2 = DB::table('ticket_old_groups')
+            ->where('group_id', $groupId)
+            ->pluck('ticket_id');
 
-        $baseQuery->where('user_id', $session->user_id ?? null);
+        // Merge results in PHP (faster than SQL union + collation casting)
+        $ticketIdsArray = $ticketIds1->merge($ticketIds2)->unique()->values()->toArray();
+
+        // Apply filter
+        $ticket->whereIn('ticket_id', $ticketIdsArray);
     }
-
-    // --- Efficient Counting using Database Queries ---
 
     $newTickets = $baseQuery->clone()->where('status', 'New')->count();
     $inProgress = $baseQuery->clone()->where('status', 'In Progress')->count();

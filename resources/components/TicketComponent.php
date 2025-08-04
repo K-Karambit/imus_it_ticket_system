@@ -1,182 +1,144 @@
 <section class="content" id="ticket-component">
 
-    <!-- Card Section -->
     <div class="row">
         <div class="col-12">
-            <div class="card">
-                <!-- Filter & Add Ticket Section -->
-
-                <div class="card-header">
-                    <div class="row align-items-center">
-
-
-                        <!-- Department Dropdown -->
-                        <div class="col-lg-3">
-                            <label for="department" class="form-label">Search</label>
-                            <div class="dropdown">
-                                <input type="text" class="form-control" placeholder="Search..." @input.prevent="filterTickets" v-model="searchQuery">
-                            </div>
-                        </div>
-
-
-                        <!-- Department Dropdown -->
-                        <div class="col-lg-3">
-                            <label for="department" class="form-label">Department</label>
-                            <div class="dropdown">
-                                <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button" id="departmentDropdown" data-toggle="dropdown" aria-expanded="false">
-                                    Department
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white border-bottom-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap">
+                        <div class="d-flex align-items-center mb-2 mb-lg-0">
+                            <div class="btn-group" role="group" aria-label="Ticket Actions">
+                                <button @click="$('#addTicketModal').modal('show')" class="btn btn-success">
+                                    <i class="fa fa-plus"></i> Add Ticket
                                 </button>
-                                <ul class="dropdown-menu" aria-labelledby="departmentDropdown" style="overflow: scroll; height:300px;">
-                                    <li><a class="dropdown-item" href="#"><input type="text" v-model="searchDepartmentsInput" placeholder="search department" class="form-control"></a> </li>
-                                    <li v-for="department in departments" :key="department.id">
-                                        <a class="dropdown-item" href="#" :hidden="!department.name.toLowerCase().includes(searchDepartmentsInput.toLowerCase())">
-                                            <input type="checkbox" :id="'department-' + department.id" :value="department.id" v-model="selectedDepartments">
-                                            {{ department.name }}
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <!-- Urgency Dropdown -->
-                        <div class="col-lg-3">
-                            <label for="urgency" class="form-label">Urgency</label>
-                            <div class="dropdown">
-                                <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button" id="urgencyDropdown" data-toggle="dropdown" aria-expanded="false">
-                                    Urgency
+                                <button @click="$('#fileNameModal').modal('show')" class="btn btn-outline-info" :disabled="tickets.length == 0">
+                                    <i class="fa fa-download"></i> Export
                                 </button>
-                                <ul class="dropdown-menu" aria-labelledby="urgencyDropdown">
-                                    <li v-for="urgencyLevel in urgencyLevels" :key="urgencyLevel">
-                                        <a class="dropdown-item" href="#">
-                                            <input type="checkbox" :id="'urgency-' + urgencyLevel" :value="urgencyLevel" v-model="selectedUrgencies">
-                                            {{ urgencyLevel }}
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <!-- Category Dropdown -->
-                        <div class="col-lg-3">
-                            <label for="category" class="form-label">Category</label>
-                            <div class="dropdown">
-                                <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button" id="categoryDropdown" data-toggle="dropdown" aria-expanded="false">
-                                    Category
+                                <button class="btn btn-primary" data-toggle="collapse" href="#filterCollapse" role="button" aria-expanded="false" aria-controls="filterCollapse">
+                                    <i class="fa fa-filter"></i> Filters
                                 </button>
-                                <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
-                                    <li>
-                                        <a class="dropdown-item" href="#">
-                                            <input type="text" v-model="searchCategoryInput" placeholder="search category" class="form-control"></a>
-                                    </li>
-                                    <li v-for="category in categories" :key="category.id">
-                                        <a class="dropdown-item" href="#" :hidden="!category.category_name.toLowerCase().includes(searchCategoryInput.toLowerCase())">
-                                            <input type="checkbox" :id="'category-' + category.id" :value="category.id" v-model="selectedCategories">
-                                            {{ category.category_name }}
-                                        </a>
-                                    </li>
-                                </ul>
                             </div>
                         </div>
-
-                        <!-- Status Dropdown -->
-                        <div class="col-lg-3">
-                            <label for="status" class="form-label">Status</label>
-                            <div class="dropdown">
-                                <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button" id="statusDropdown" data-toggle="dropdown" aria-expanded="false">
-                                    Status
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="statusDropdown">
-                                    <li v-for="state in states" :key="state">
-                                        <a class="dropdown-item" href="#">
-                                            <input type="checkbox" :id="'status-' + state" :value="state" v-model="selectedStatuses">
-                                            {{ state }}
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
+                        <div class="d-flex align-items-center">
+                            <span class="text-muted me-2">Show</span>
+                            <select class="form-control form-control-sm me-2" style="width: 70px;" v-model="filters.limit" @change.prevent="togglePerPage">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="200">200</option>
+                            </select>
+                            <span class="text-muted">entries</span>
                         </div>
-
-
-                        <?php if ($_GET['route'] !== '/profile' && $_GET['route'] !== '/home'):  ?>
-                            <div class="col-lg-3">
-                                <label for="status" class="form-label">Users</label>
-                                <div class="dropdown">
-                                    <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button" id="statusDropdown" data-toggle="dropdown" aria-expanded="false">
-                                        User
-                                    </button>
-                                    <ul class="dropdown-menu" aria-labelledby="statusDropdown">
-                                        <li><a class="dropdown-item" href="#"><input type="text" v-model="searchUsersInput" placeholder="search user" class="form-control"></a> </li>
-                                        <li v-for="user in users" :key="user">
-                                            <a class="dropdown-item" href="#" :hidden="!user.full_name.toLowerCase().includes(searchUsersInput.toLowerCase())">
-                                                <input type="checkbox" :id="'user-' + user.user_id" :value="user.user_id" v-model="selectedUsers">
-                                                {{ user.full_name }}
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        <?php endif;  ?>
-
-                        <!-- Start Date -->
-                        <div class="col-lg-3">
-                            <label for="startDate" class="form-label">Start Date</label>
-                            <input id="startDate" class="form-control" type="date" v-model="startDate">
-                        </div>
-
-                        <!-- End Date -->
-                        <div class="col-lg-3">
-                            <label for="endDate" class="form-label">End Date</label>
-                            <input id="endDate" class="form-control" type="date" v-model="endDate">
-                        </div>
-
-                        <!-- Filter Button -->
-                        <div class="col-lg-3">
-                            <label for="filter" class="form-label">&nbsp;</label>
-                            <button @click="filterTickets" id="filter" class="btn btn-primary w-100"><i class="fa fa-filter"></i> Filter</button>
-                        </div>
-
-                        <!-- Reset Button -->
-                        <div class="col-lg-3">
-                            <label for="reset" class="form-label">&nbsp;</label>
-                            <button @click="resetFilter" id="reset" class="btn btn-danger w-100"><i class="fa fa-undo"></i> Reset</button>
-                        </div>
-
                     </div>
                 </div>
 
-
-                <!-- Tickets Table -->
-                <div class="card-body">
-                    <!-- Action Buttons -->
-                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                        <div>
-                            <button @click="$('#addTicketModal').modal('show')" class="btn btn-primary">
-                                <i class="fa fa-plus me-1"></i> Add Ticket
-                            </button>
-                            <button @click="$('#fileNameModal').modal('show')" class="btn btn-outline-info" :disabled="tickets.length == 0">
-                                <i class="fa fa-save me-1"></i> Export
-                            </button>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <p class="mt-2">entries</p>
+                <div class="collapse" id="filterCollapse">
+                    <div class="card-body border-top py-3">
+                        <div class="row g-3">
+                            <div class="col-lg-6 mb-3">
+                                <div class="form-group mb-3">
+                                    <label for="searchQuery" class="form-label text-muted">Search Tickets</label>
+                                    <input type="text" id="searchQuery" class="form-control" placeholder="Search by description or ID..." @input.prevent="filterTickets" v-model="searchQuery">
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label for="startDate" class="form-label text-muted">Start Date</label>
+                                        <input id="startDate" class="form-control" type="date" v-model="startDate">
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="endDate" class="form-label text-muted">End Date</label>
+                                        <input id="endDate" class="form-control" type="date" v-model="endDate">
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <select class="form-control" v-model="filters.limit" @change.prevent="filterTickets">
-                                    <option value="10">10</option>
-                                    <option value="25">25</option>
-                                    <option value="20">50</option>
-                                    <option value="100">100</option>
-                                    <option value="200">200</option>
-                                </select>
+
+                            <div class="col-lg-6 mb-3">
+                                <div class="row g-2">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="department" class="form-label text-muted">Department</label>
+                                        <div class="dropdown">
+                                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-truncate" type="button" data-toggle="dropdown" aria-expanded="false">
+                                                Department
+                                            </button>
+                                            <ul class="dropdown-menu" style="max-height: 250px; overflow-y: auto;">
+                                                <li>
+                                                    <div class="px-2 py-1"><input type="text" v-model="searchDepartmentsInput" placeholder="Search..." class="form-control form-control-sm"></div>
+                                                </li>
+                                                <li v-for="department in departments" :key="department.id">
+                                                    <a class="dropdown-item" href="#" :hidden="!department.name.toLowerCase().includes(searchDepartmentsInput.toLowerCase())">
+                                                        <input type="checkbox" :id="'department-' + department.id" :value="department.id" v-model="selectedDepartments" class="me-2">
+                                                        {{ department.name }}
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="urgency" class="form-label text-muted">Urgency</label>
+                                        <div class="dropdown">
+                                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-truncate" type="button" data-toggle="dropdown" aria-expanded="false">
+                                                Urgency
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li v-for="urgencyLevel in urgencyLevels" :key="urgencyLevel">
+                                                    <a class="dropdown-item" href="#">
+                                                        <input type="checkbox" :id="'urgency-' + urgencyLevel" :value="urgencyLevel" v-model="selectedUrgencies" class="me-2">
+                                                        {{ urgencyLevel }}
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="category" class="form-label text-muted">Category</label>
+                                        <div class="dropdown">
+                                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-truncate" type="button" data-toggle="dropdown" aria-expanded="false">
+                                                Category
+                                            </button>
+                                            <ul class="dropdown-menu" style="max-height: 250px; overflow-y: auto;">
+                                                <li>
+                                                    <div class="px-2 py-1"><input type="text" v-model="searchCategoryInput" placeholder="Search..." class="form-control form-control-sm"></div>
+                                                </li>
+                                                <li v-for="category in categories" :key="category.id">
+                                                    <a class="dropdown-item" href="#" :hidden="!category.category_name.toLowerCase().includes(searchCategoryInput.toLowerCase())">
+                                                        <input type="checkbox" :id="'category-' + category.id" :value="category.id" v-model="selectedCategories" class="me-2">
+                                                        {{ category.category_name }}
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="status" class="form-label text-muted">Status</label>
+                                        <div class="dropdown">
+                                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-truncate" type="button" data-toggle="dropdown" aria-expanded="false">
+                                                Status
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li v-for="state in states" :key="state">
+                                                    <a class="dropdown-item" href="#">
+                                                        <input type="checkbox" :id="'status-' + state" :value="state" v-model="selectedStatuses" class="me-2">
+                                                        {{ state }}
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 mt-3 text-end">
+                                <button @click="filterTickets" class="btn btn-primary me-2"><i class="fa fa-filter"></i> Apply Filters</button>
+                                <button @click="resetFilter" class="btn btn-outline-secondary"><i class="fa fa-undo"></i> Reset</button>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Ticket Table -->
+                <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table id="tickets-data" class="table table-bordered table-hover align-middle text-wrap">
-                            <thead class="">
+                        <table id="tickets-data" class="table table-hover align-middle text-wrap mb-0">
+                            <thead>
                                 <tr>
                                     <th class="d-none">#</th>
                                     <th>ID</th>
@@ -193,17 +155,16 @@
                             <tbody>
                                 <tr v-for="(ticket, index) in tickets.data" :key="ticket.id"
                                     @click.prevent="ticketDetails(index)"
-                                    class="cursor-pointer table-row-hover"
-                                    style="cursor: pointer;">
+                                    class="cursor-pointer">
                                     <td class="d-none">{{index+1}}</td>
                                     <th>{{ ticket.ticket_id }}</th>
                                     <td class="limit-lines" v-html="ticket.short_description"></td>
                                     <td>
-                                        <span class="badge rounded-pill text-bg-light" :style="urgencyColor(ticket.urgency)">
+                                        <span class="badge rounded-pill text-white" :style="urgencyColor(ticket.urgency)">
                                             {{ ticket.urgency }}
                                         </span>
                                     </td>
-                                    <td>{{ ticket.assigned ? ticket.assigned.full_name : ''  }}</td>
+                                    <td>{{ ticket.assigned ? ticket.assigned.full_name : 'Unassigned' }}</td>
                                     <td>{{ ticket.department ? ticket.department.name : 'No Department' }}</td>
                                     <td>
                                         <span class="badge rounded-pill text-white" :style="statusColor(ticket.status)">
@@ -217,20 +178,33 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
 
-                    <!-- Pagination -->
-                    <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap">
-                        <div class="text-dark"><b>{{ tickets.current_page ?? 0 }}/{{ totalPage  }}</b></div>
+                <div class="card-footer bg-white border-top py-3">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap">
+                        <div class="text-muted small">
+                            <b>{{ tickets.current_page ?? 0 }}</b> of <b>{{ totalPage }}</b> pages | Total Tickets <b>{{totalTickets}}</b>
+                        </div>
                         <nav aria-label="Page navigation">
-                            <ul class="pagination mb-0">
+                            <ul class="pagination pagination-sm mb-0">
+                                <li class="page-item" :class="{ 'disabled': currentPage === 1 }">
+                                    <a class="page-link" href="#" @click.prevent="togglePage(1)">
+                                        First Page
+                                    </a>
+                                </li>
+                                <li class="page-item" :class="{ 'disabled': currentPage === totalPage }">
+                                    <a class="page-link" href="#" @click.prevent="togglePage(totalPage)">
+                                        Last Page
+                                    </a>
+                                </li>
                                 <li class="page-item" :class="{ 'disabled': currentPage === 1 }">
                                     <a class="page-link" href="#" @click.prevent="togglePage(currentPage - 1)">
-                                        <i class="fa fa-angle-left me-1"></i> Previous
+                                        <i class="fa fa-angle-left"></i> Previous
                                     </a>
                                 </li>
                                 <li class="page-item" :class="{ 'disabled': currentPage === totalPage }">
                                     <a class="page-link" href="#" @click.prevent="togglePage(currentPage + 1)">
-                                        Next <i class="fa fa-angle-right ms-1"></i>
+                                        Next <i class="fa fa-angle-right"></i>
                                     </a>
                                 </li>
                             </ul>
@@ -260,7 +234,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" data-dismiss="modal" class="btn btn-danger">Close</button>
-                    <button @click="exportData" type="button" class="btn btn-primary">Save</button>
+                    <button @click="exportData" type="button" class="btn btn-primary" :disabled="exportingData">{{exportingData ? 'Exporting...' : 'Save'}}</button>
                 </div>
             </div>
         </div>
@@ -281,6 +255,7 @@
             comment: {},
             departments: [],
             groups: [],
+            userGroupId: '<?= $session_user->group_id ?? null ?>',
 
             categories: [],
 
@@ -350,6 +325,9 @@
             responseMessage: '',
             totalPage: 0,
             currentPage: 1,
+            totalTickets: 0,
+
+            exportingData: false,
         },
         methods: {
             togglePage(newPage) {
@@ -391,7 +369,7 @@
                     this.tickets = response.data;
                     this.totalPage = response.data.total_page;
                     this.currentPage = response.data.current_page;
-                    this.curre
+                    this.totalTickets = response.data.total_tickets;
                     Vue.nextTick(() => {
                         $('#tickets-data').DataTable({
                             "paging": false,
@@ -431,6 +409,7 @@
             submitTicketForm() {
                 this.loading();
                 const formdata = new FormData(document.getElementById('addTicketForm'));
+                formdata.append('user_group_id', this.users.find(user => user.user_id === this.data.user_id).group_id ?? this.userGroupId);
                 //formdata.append('department', this.departmentInput);
 
                 fetch('<?= $api ?>/tickets.php?action=add', {
@@ -536,8 +515,12 @@
                 formdata.append('status', this.stateStatus);
 
                 if (this.stateStatus === 'Reassign') {
-                    formdata.append('reassigned_user', this.data.user_id ?? null);
-                    formdata.append('assign_by', this.selectedAssign ?? null);
+
+                  
+                        formdata.append('reassigned_user', this.data.user_id ?? null);
+                        formdata.append('assign_by', this.selectedAssign ?? null);
+                   
+
 
                     if (this.selectedAssign === 'group') {
                         formdata.append('assigned_group_id', this.data.reassign_to_group_id ?? null);
@@ -577,6 +560,7 @@
                 })
             },
             async exportData() {
+                this.exportingData = true;
                 const params = new URLSearchParams(window.location.search);
                 const route = params.get('route');
                 const formData = new FormData();
@@ -593,7 +577,7 @@
 
                 try {
                     // API endpoint
-                    const apiUrl = `<?= $api ?>/tickets.php?action=export&urgency=${JSON.stringify(this.selectedUrgencies)}&startDate=${this.startDate}&endDate=${this.endDate}&department=${JSON.stringify(this.selectedDepartments)}&status=${JSON.stringify(this.selectedStatuses)}&category=${JSON.stringify(this.selectedCategories)}&user=${JSON.stringify(this.selectedUsers)}&individual=${this.individual}`;
+                    const apiUrl = `<?= $api ?>/tickets.php?action=export&urgency=${JSON.stringify(this.selectedUrgencies)}&startDate=${this.startDate}&endDate=${this.endDate}&department=${JSON.stringify(this.selectedDepartments)}&status=${JSON.stringify(this.selectedStatuses)}&category=${JSON.stringify(this.selectedCategories)}&user=${JSON.stringify(this.selectedUsers)}&individual=${this.individual}&searchQuery=${this.searchQuery}`;
 
                     // Fetch the Excel file from the API
                     const response = await fetch(apiUrl, {
@@ -631,10 +615,13 @@
                     $('#fileNameModal').modal('hide');
                     this.fileName = null;
 
+                    this.exportingData = false;
+
 
                     console.log("Excel file downloaded successfully!");
                 } catch (error) {
                     console.error("Error downloading the Excel file:", error);
+                    this.exportingData = false;
                 }
             },
             fetchCategories() {
@@ -891,6 +878,9 @@
                 }
 
                 return 'No additional info';
+            },
+            togglePerPage() {
+                this.filterTickets();
             }
         },
         mounted() {
