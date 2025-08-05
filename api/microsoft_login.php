@@ -28,4 +28,4 @@ $authorizationUrl = $provider->getAuthorizationUrl();
 $_SESSION['oauth2state'] = $provider->getState(); // Store state for verification
 
 header('Location: ' . $authorizationUrl);
-exit(); 
+exit();

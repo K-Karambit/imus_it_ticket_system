@@ -80,7 +80,6 @@
         <ul class="list-disc list-inside text-left mx-auto max-w-sm mb-8 space-y-2 text-gray-700">
             <li>Checking the URL for typos.</li>
             <li>Going back to the previous page.</li>
-            <li>Using the search bar if available.</li>
         </ul>
         <a href="?route=/home" class="inline-block px-6 py-3 bg-blue-600 text-white rounded-full font-semibold transition-all duration-300 ease-in-out hover:bg-blue-700 hover:scale-105 hover:shadow-lg m-2">
             <i class="fas fa-home mr-2"></i> Go to Homepage

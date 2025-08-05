@@ -41,7 +41,7 @@ class Activity extends Model
         $activity->user_id = $userid;
         $activity->module = $module;
         $activity->details = $description;
-        $activity->group_id = $user->group_id;
+        //   $activity->group_id = $user->group_id;
         $activity->save();
     }
 }

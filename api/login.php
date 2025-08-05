@@ -19,8 +19,7 @@ header("Expires: 0");
 use Models\User;
 use Models\Session;
 use Models\Activity;
-use Carbon\Carbon;
-use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Hash;
 
 if (!isset($_POST['username'], $_POST['password'])) {
   http_response_code(404);
@@ -40,6 +39,34 @@ if (!$user) {
   return;
 }
 
+if (!password_verify($password, $user->password)) {
+  $user->login_attempt = $user->login_attempt + 1;
+  $user->save();
+  $current_attempt_left = $max_attempt - $user->login_attempt;
+
+  echo json_encode(['status' => 'error', 'message' => "Invalid username or password."]);
+  return;
+}
+
+if (session_status() == PHP_SESSION_NONE) {
+  session_start();
+}
+
+$generated_token = md5(random_bytes(10));
+$session = new Session();
+$session->user_id = $user->user_id;
+$session->token = $generated_token;
+
+$datetime = date('m/d/Y h:i A');
+Activity::addActivityLog('login', "logged in $datetime", $user);
+
+$session->save();
+
+$_SESSION['SESSION_TOKEN'] = $generated_token;
+$_SESSION['SESSION_KEY'] = base64_encode(random_bytes(1000));
+echo json_encode(['status' => 'success', 'message' => 'Welcome back!', 'date' => now()->format('Y-m-d h:i A')]);
+
+
 // if ($user->login_attempt >= $max_attempt) {
 //   $expiration = Carbon::parse($user->updated_at)->addMinutes(5);
 
@@ -57,33 +84,3 @@ if (!$user) {
 
 //   return;
 // }
-
-
-if (!password_verify($password, $user->password)) {
-  $user->login_attempt = $user->login_attempt + 1;
-  $user->save();
-  $current_attempt_left = $max_attempt - $user->login_attempt;
-
-  echo json_encode(['status' => 'error', 'message' => "Invalid username or password."]);
-  return;
-}
-
-
-
-if (session_status() == PHP_SESSION_NONE) {
-  session_start();
-}
-
-$generated_token = md5(random_bytes(10));
-$session = new Session();
-$session->user_id = $user->user_id;
-$session->token = $generated_token;
-
-$datetime = date('m/d/Y h:i A');
-Activity::addActivityLog('login', "logged in $datetime", $user->user_id);
-
-$session->save();
-
-$_SESSION['SESSION_TOKEN'] = $generated_token;
-$_SESSION['SESSION_KEY'] = base64_encode(random_bytes(1000));
-echo json_encode(['status' => 'success', 'message' => 'Welcome back!', 'token' => $generated_token, 'user' => $user->toArray()]);

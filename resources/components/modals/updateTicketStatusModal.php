@@ -224,8 +224,8 @@
             <button type="button" data-dismiss="modal" class="btn btn-secondary ghibli-btn">
               Close
             </button>
-            <button type="submit" class="btn btn-primary ghibli-btn">
-              Submit
+            <button type="submit" class="btn btn-primary ghibli-btn" :disabled="submittingStatus">
+              {{ submittingStatus ? 'Please wait...' : 'Submit' }}
             </button>
           </div>
         </form>

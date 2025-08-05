@@ -197,15 +197,29 @@
                         <div class="form-group">
                             <label for="subject">Claimant Name <span class="text-danger">*</span></label>
                             <div class="input-container">
-                                <input type="text" class="form-control" v-model="data.claimant_name" name="claimant_name" id="claimant_name"
+                                <input type="text" class="form-control" v-model="ticketAdditionalInfo.claimant_name" id="claimant_name"
                                     placeholder="Enter claiment name" autocomplete="off" required />
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="subject">Cient Name <span class="text-danger">*</span></label>
                             <div class="input-container">
-                                <input type="text" class="form-control" v-model="data.client_name" name="client_name" id="client_name"
+                                <input type="text" class="form-control" v-model="ticketAdditionalInfo.client_name" id="client_name"
                                     placeholder="Enter client name" autocomplete="off" required />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Contact No. <span class="text-danger">*</span></label>
+                            <div class="input-container">
+                                <input type="text" class="form-control" v-model="ticketAdditionalInfo.contact_no" id="contact_no"
+                                    placeholder="Enter contact no." autocomplete="off" required />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Particulars <span class="text-danger">*</span></label>
+                            <div class="input-container">
+                                <input type="text" class="form-control" v-model="ticketAdditionalInfo.particulars" id="particulars"
+                                    placeholder="Enter particulars" autocomplete="off" required />
                             </div>
                         </div>
                         <div class="form-group">
@@ -213,7 +227,7 @@
                             <div class="input-container">
                                 <div class="input-group">
                                     <span class="input-group-text">₱</span>
-                                    <input type="text" class="form-control" v-model="data.amount" name="amount" id="amount"
+                                    <input type="text" class="form-control" v-model="ticketAdditionalInfo.amount" id="amount"
                                         placeholder="Enter amount" @change.prevent="handleFormatCash" autocomplete="off" required />
                                 </div>
                             </div>
@@ -222,7 +236,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" data-dismiss="modal" class="btn btn-secondary">Close</button>
-                    <button type="submit" class="btn btn-primary float-right">Add Ticket</button>
+                    <button type="submit" class="btn btn-primary float-right" :disabled="submittingTicket"> {{ submittingTicket ? 'Please wait...' : 'Add Ticket' }} </button>
                 </div>
             </form>
         </div>

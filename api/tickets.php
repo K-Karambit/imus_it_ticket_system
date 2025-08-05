@@ -11,24 +11,18 @@ use Models\Department;
 use Models\Session;
 use Illuminate\Support\Carbon;
 use Models\Notification;
-use Models\State;
-use Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Models\TicketOldGroup;
+use Models\TicketAdditionalInfo;
 
 $activity = new Activity();
 $helper = new Helper();
 $session =  Session::session_user();
 $action = $_GET['action'] ?? null;
 
-
-
 if (!$action) {
     http_response_code(404);
     exit;
 }
-
-
 
 if ($action === 'all') {
     $tickets = Ticket::orderBy('id', 'desc');
@@ -48,56 +42,6 @@ if ($action === 'all') {
     $result = $ticket->simplePaginate($limit, ['*'], 'page', $page);
     echo json_encode($result);
 }
-
-
-
-if ($action === 'dashboard') {
-    $tickets = Ticket::orderBy('created_at', 'desc');
-
-    if ($session->is_super_admin != 1) {
-        $tickets->where('group_id', $session->group_id);
-    }
-
-    $results = $tickets->get();
-    echo json_encode($tickets);
-}
-
-
-
-if ($action === 'new_tickets_count') {
-    $tickets = Ticket::where('status', 'New');
-
-    if ($session->is_super_admin != 1) {
-        $tickets->where('group_id', $session->group_id);
-    }
-
-    $result = $tickets->count();
-    echo json_encode($result);
-}
-
-
-
-
-
-
-
-
-
-
-
-if ($action === 'user_ticket') {
-    $userid = ($_GET['userid']) ?? null;
-    $tickets = Ticket::orderBy('created_at', 'desc')->where('user_id', '=', $userid)->get();
-    echo json_encode($tickets);
-}
-
-
-
-
-
-
-
-
 
 
 
@@ -133,6 +77,13 @@ if ($action === 'add') {
         // $state->updated_by = $ticket->added_by;
         // $state->save();
 
+        if (isset($_POST['additional_info']) && $_POST['additional_info']) {
+            $ticketAdditionalInfo = new TicketAdditionalInfo();
+            $ticketAdditionalInfo->ticket_id = $generated_ticket_id;
+            $ticketAdditionalInfo->fill(json_decode($_POST['additional_info'], true));
+            $ticketAdditionalInfo->save();
+        }
+
         if ($ticket->user_id !== $session->user_id) {
             $notification = new Notification();
             $notification->notif_for = $ticket->user_id;
@@ -151,26 +102,6 @@ if ($action === 'add') {
         echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 if ($action === 'filter') {
@@ -450,173 +381,10 @@ if ($action === 'export') {
 
 
 
-
-
-
-if ($action === 'print') {
-    $urgency = $_GET['urgency'] ?? null;
-    $startDate = $_GET['startDate'] ?? null;
-    $endDate = $_GET['endDate'] ?? null;
-
-    // Initialize the query with a join
-    $tickets = Ticket::query();
-
-    // Filter by urgency if provided
-    if (!is_null($urgency)) {
-        $tickets->where('urgency', $urgency); // Exact match filter
-    }
-
-    // Filter by date range if both start and end dates are provided
-    if (!is_null($startDate) && !is_null($endDate)) {
-        $tickets->whereBetween('created_at', [$startDate, $endDate]);
-    }
-
-    if ($session->is_super_admin != 1) {
-        $tickets->where('group_id', $session->group_id);
-    }
-
-    // Fetch results
-    $results = $tickets->get();
-
-    if ($results->isEmpty()) {
-        echo json_encode(['status' => 'error', 'message' => 'No data found for the given filters.']);
-        exit;
-    }
-
-    // Prepare data for Excel
-    $data = [['ID', 'Assigned To', 'Short Description', 'Description', 'Department', 'States']]; // Headers
-    foreach ($results as $ticket) {
-        $data[] = [
-            $ticket->ticket_id,
-            $ticket->assigned_user,
-            $ticket->short_description,
-            $ticket->description,
-            $ticket->department_name,
-            $ticket->ticket_states,
-        ];
-    }
-
-    // Generate and download the Excel file
-    $xlsx = SimpleXLSXGen::fromArray($data);
-
-    // Define file name
-    $fileName = 'tickets_' . date('Y-m-d_H-i-s') . '.xlsx';
-
-    // Send headers for file download
-    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    header('Content-Disposition: attachment; filename="' . $fileName . '"');
-    $xlsx->download($fileName);
-    exit;
-}
-
-
-
-
-
-
-
-
-
-
-if ($action === 'monthly_report') {
-    $countsPerMonth = DB::table('tickets')->selectRaw('MONTH(created_at) as month, YEAR(created_at) as year, COUNT(*) as count');
-
-    $startDate = $_GET['start_date'] ?? null;
-    $endDate = $_GET['end_date'] ?? null;
-
-    if (isset($_GET['user_id'])) {
-        $countsPerMonth->where('user_id', 'like', $_GET['user_id']);
-    }
-
-    if (!empty($startDate) && !empty($endDate)) {
-        $countsPerMonth->whereBetween('created_at', [$startDate, $endDate]);
-    }
-
-    if ($session->role != 123) {
-        $countsPerMonth->where('group_id', $session->group_id);
-    }
-
-    // if (!empty($_GET['year_filter'])) {
-    //     $countsPerMonth->whereYear('created_at', $_GET['year_filter']);
-    // }
-
-    // if (!empty($_GET['user_filter'])) {
-    //     $countsPerMonth->where('user_id', '=', $_GET['user_filter']);
-    // }
-
-    // if (!empty($_GET['department_filter'])) {
-    //     $countsPerMonth->where('department', '=', $_GET['department_filter']);
-    // }
-
-    $results =  $countsPerMonth->groupBy('month')->get();
-
-    $months = [];
-    $years = [];
-    $counts = [];
-
-    foreach ($results as $row) {
-        $months[] = date('F', strtotime("$row->year-$row->month"));
-        $years[] =  $row->year;
-        $counts[] = $row->count;
-    }
-
-    $unresolved_tickets = Ticket::where('status', '!=', 'Resolved')->where('status', '!=', 'Cancelled');
-
-    $unresolved_tickets = $unresolved_tickets->where('group_id', $session->group_id);
-
-    $unresolved_tickets = $unresolved_tickets->get();
-
-    $three_days_unresolved = [];
-    $one_week_unresolved = [];
-
-    $three_days_ago = Carbon::now()->subDays(3)->startOfDay()->timestamp;
-    $one_week_ago = Carbon::now()->subDays(7)->startOfDay()->timestamp;
-
-    foreach ($unresolved_tickets as $row) {
-        $date = date('Y-m-d', strtotime($row['created_at']));
-        $ticket_time = strtotime($date);
-
-        if ($ticket_time <= $three_days_ago) {
-            $three_days_unresolved[] = $row;
-        }
-        if ($ticket_time <= $one_week_ago) {
-            $one_week_unresolved[] = $row;
-        }
-    }
-
-    echo json_encode(
-        [
-            'year' => $years,
-            'month' => $months,
-            'count' => $counts,
-            'three_days_unresolved' => $three_days_unresolved,
-            'one_week_unresolved' => $one_week_unresolved,
-        ]
-    );
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 if ($action === 'department_report') {
     $countsPerMonth = DB::table('tickets')->join('departments', 'departments.id', '=', 'tickets.department')->selectRaw('departments.name, COUNT(*) as count')->groupBy('department')->get();
     echo json_encode($countsPerMonth);
 }
-
-
-
-
-
 
 
 
@@ -686,67 +454,6 @@ if ($action === 'update_department') {
 }
 
 
-
-if ($action === 'overview') {
-    $id = $_GET['id'] != 'null' ? $_GET['id'] : $session->user_id;
-    $tickets = Ticket::where('user_id', $id);
-
-    // if ($session && $session->role == 1) {
-    //     $tickets->where('user_id', $session->user_id);
-    // }
-
-    if (!$session->is_super_admin) {
-        $groupId = $session->group_id;
-
-        // Avoid UNION and run two simpler queries
-        $ticketIds1 = DB::table('tickets')
-            ->where('group_id', $groupId)
-            ->pluck('ticket_id');
-
-        $ticketIds2 = DB::table('ticket_old_groups')
-            ->where('group_id', $groupId)
-            ->pluck('ticket_id');
-
-        // Merge results in PHP (faster than SQL union + collation casting)
-        $ticketIdsArray = $ticketIds1->merge($ticketIds2)->unique()->values()->toArray();
-
-        // Apply filter
-        $tickets->whereIn('ticket_id', $ticketIdsArray);
-    }
-
-    $tickets = $tickets->get();
-
-    $inProgress = 0;
-    $new = 0;
-    $today = 0;
-
-    foreach ($tickets as $ticket) {
-        if ($ticket['status'] === 'New') {
-            $new++;
-        }
-        if ($ticket['status'] === 'In Progress') {
-            $inProgress++;
-        }
-        if (Carbon::parse($ticket['created_at'])->format('Y-m-d') === now()->format('Y-m-d')) {
-            $today++;
-        }
-    }
-
-    echo json_encode([
-        'inProgress' => $inProgress,
-        'new' => $new,
-        'today' => $today,
-    ]);
-}
-
-
-
-
-
-
-
-
-// Assuming $action and $session are defined somewhere above this snippet
 
 if ($action === 'counts') {
     $baseQuery = Ticket::query();

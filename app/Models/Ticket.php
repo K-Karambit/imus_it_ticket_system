@@ -8,7 +8,7 @@ class Ticket extends Model
 {
     protected $fillable = ['ticket_id', 'user_id', 'subject', 'description', 'department', 'urgency', 'status', 'added_by', 'category', 'claimant_name', 'client_name', 'amount'];
     protected $appends = ['date_added', 'assigned_user', 'short_description', 'department_name', 'added_by_name', 'category_name'];
-    protected $with = ['creator', 'assigned', 'department', 'category', 'group'];
+    protected $with = ['creator', 'assigned', 'department', 'category', 'group', 'additionalInfo'];
 
     function getDateAddedAttribute()
     {
@@ -68,5 +68,9 @@ class Ticket extends Model
     function group()
     {
         return $this->hasOne(Group::class, 'group_id', 'group_id');
+    }
+    function additionalInfo()
+    {
+        return $this->hasOne(TicketAdditionalInfo::class, 'ticket_id', 'ticket_id');
     }
 }

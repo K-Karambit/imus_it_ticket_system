@@ -18,7 +18,7 @@
 
                             <p><strong>Short Description:</strong> <span v-html="ticket.short_description"></span></p>
                             <p><strong>Description:</strong> <span class="" v-html="ticket.description"></span></p>
-                            <p v-if="ticket.claimant_name" v-html="additionalInfo(ticket)"></p>
+                            <p v-if="ticket.additional_info" v-html="additionalInfo(ticket.additional_info, 'table')"></p>
 
                             <!-- Department -->
                             <div class="mb-3">
@@ -100,14 +100,19 @@
 
                     <!-- Right Section -->
                     <div class="col-lg-6">
-                        <div class="p-3">
+                        <div class="p-0">
                             <!-- <h6 class="text-primary">Status History</h6> -->
 
-                            <div v-if="ticketStates.length === 0" class="alert alert-secondary">
+                            <!-- <div v-if="ticketStates.length == 0" class="alert alert-secondary">
                                 No status history available.
+                            </div> -->
+
+                            <div class="d-flex justify-content-center" v-if="fetchingStatus">
+                                <img src="<?= $helper->public_url('assets/img/loading.gif') ?>" height="40" width="40" alt="Please wait...">
                             </div>
 
-                            <table v-if="ticketStates.length > 0" class="table table-sm table-bordered table-hover" id="status-table">
+
+                            <table class="table table-sm table-bordered table-hover" id="status-table">
                                 <thead class="thead-light">
                                     <tr>
                                         <th class="d-none">#</th>

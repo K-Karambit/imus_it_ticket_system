@@ -1,38 +1,43 @@
 <div class="card mb-4" id="profile-component">
-    <div class="card-body text-center">
-        <img :src="data.user_profile ?? 'api/storage/default-profile.jpg' " alt="Profile Image" class="rounded-circle img-fluid mb-3 shadow"
-            style="width: 150px; height: 150px;">
 
-        <h4 class="card-text">{{data.full_name}}</h4>
-        <p class="card-text">{{data.user_role ?? 'No Information'}}</p>
-        <p class="card-text"><strong>Username:</strong> {{data.username ?? 'No Information'}}</p>
-        <p class="card-text"><strong>Group:</strong> {{data.group_name ?? 'No Information'}}</p>
-        <p class="card-text"><strong>Email:</strong> {{data.email ?? 'No Information'}}</p>
-        <p class="card-text"><strong>Phone:</strong> {{data.phone ?? 'No Information'}}</p>
-        <p class="card-text"><strong>Date Added:</strong> {{data.date_added ?? 'No Information'}}</p>
+    <div class="card-body">
+        <div class="d-flex align-items-center mb-4">
+            <img :src="data.user_profile ?? 'api/storage/default-profile.jpg'" alt="Profile Image" class="rounded-circle mr-3" style="width: 100px; height: 100px;">
+            <div>
+                <h4 class="mb-0">{{ data.full_name }}</h4>
+                <p class="text-muted mb-1">{{ data.user_role ?? 'No Information' }}</p>
+                <p class="text-muted small">Added on {{ data.date_added ?? 'No Information' }}</p>
+            </div>
+        </div>
 
+        <div class="row">
+            <div class="col-md-6 mb-2">
+                <p class="mb-1"><strong class="text-muted">Username:</strong> {{ data.username ?? 'No Information' }}</p>
+            </div>
+            <div class="col-md-6 mb-2">
+                <p class="mb-1"><strong class="text-muted">Group:</strong> {{ data.group_name ?? 'No Information' }}</p>
+            </div>
+            <div class="col-md-6 mb-2">
+                <p class="mb-1"><strong class="text-muted">Email:</strong> {{ data.email ?? 'No Information' }}</p>
+            </div>
+            <div class="col-md-6 mb-2">
+                <p class="mb-1"><strong class="text-muted">Phone:</strong> {{ data.phone ?? 'No Information' }}</p>
+            </div>
+        </div>
 
-        <div class="mt-3">
+        <div class="mt-4 pt-3 border-top">
             <?php if (permission('users', 'w', $session_user->role)): ?>
-                <button
-                    type="button"
-                    permission="write"
-                    data-toggle="modal"
-                    data-target="#editProfileModal"
-                    class="btn btn-primary text-white">
-                    <i class="fas fa-edit"></i> Edit
+                <button type="button" permission="write" data-toggle="modal" data-target="#editProfileModal" class="btn btn-primary text-white mr-2">
+                    <i class="fas fa-edit"></i> Edit Profile
                 </button>
             <?php endif; ?>
             <?php if (permission('users', 'd', $session_user->role)): ?>
-                <button permission="delete" @click.prevent="deleteUser" type="button" permission="delete" class="btn btn-danger">
-                    <i class="fas fa-trash"></i>
-                    Delete
+                <button permission="delete" @click.prevent="deleteUser" type="button" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Delete User
                 </button>
             <?php endif; ?>
-
-
-
         </div>
+
     </div>
 
     <div class="modal mb-4" id="editProfileModal" data-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel"

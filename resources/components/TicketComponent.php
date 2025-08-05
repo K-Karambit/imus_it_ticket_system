@@ -26,6 +26,7 @@
                                 <option value="50">50</option>
                                 <option value="100">100</option>
                                 <option value="200">200</option>
+                                <option :value="totalTickets">All</option>
                             </select>
                             <span class="text-muted">entries</span>
                         </div>
@@ -137,7 +138,7 @@
 
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table id="tickets-data" class="table table-hover align-middle text-wrap mb-0">
+                        <table id="tickets-data" class="table table-hover table-striped align-middle text-wrap mb-0">
                             <thead>
                                 <tr>
                                     <th class="d-none">#</th>
@@ -171,7 +172,7 @@
                                             {{ ticket.status }}
                                         </span>
                                     </td>
-                                    <td v-html=" additionalInfo(ticket)"></td>
+                                    <td v-html=" additionalInfo(ticket.additional_info)"></td>
                                     <td>{{ticket.group ? ticket.group.group_name : 'No Group'}}</td>
                                     <td>{{ ticket.date_added }}</td>
                                 </tr>
@@ -274,6 +275,7 @@
                 category: '',
                 reassign_to_group_id: '',
             },
+            ticketAdditionalInfo: {},
 
             stateDetails: '',
             stateStatus: '',
@@ -328,6 +330,11 @@
             totalTickets: 0,
 
             exportingData: false,
+
+            fetchingStatus: false,
+
+            submittingTicket: false,
+            submittingStatus: false,
         },
         methods: {
             togglePage(newPage) {
@@ -408,17 +415,21 @@
             },
             submitTicketForm() {
                 this.loading();
+                this.submittingTicket = true;
                 const formdata = new FormData(document.getElementById('addTicketForm'));
                 formdata.append('user_group_id', this.users.find(user => user.user_id === this.data.user_id).group_id ?? this.userGroupId);
-                //formdata.append('department', this.departmentInput);
 
-                fetch('<?= $api ?>/tickets.php?action=add', {
-                    method: 'POST',
-                    body: formdata,
+                if (Object.keys(this.ticketAdditionalInfo).length > 0) {
+                    formdata.append('additional_info', JSON.stringify(this.ticketAdditionalInfo));
+                }
+
+                axios.post('<?= $api ?>/tickets.php?action=add', formdata, {
                     headers: {
                         "X-API-Key": "<?= $api_key ?>"
                     }
-                }).then(res => res.json()).then(data => {
+                }).then(res => {
+                    const data = res.data;
+                    this.submittingTicket = false;
                     this.loading(false);
                     if (data.status === 'success') {
                         toastr.success(data.message);
@@ -438,6 +449,9 @@
                         return;
                     }
                     toastr.error(data.message);
+                }).catch(err => {
+                    this.submittingTicket = false;
+                    console.error(err);
                 })
             },
             statusColor(status) {
@@ -480,12 +494,15 @@
                 console.log(this.filteredGroups)
             },
             fetchTicketStates(id) {
+                this.fetchingStatus = true;
+                this.ticketStates = [];
                 fetch('<?= $api ?>/states.php?action=get&id=' + id, {
                     method: 'GET',
                     headers: {
                         "X-API-Key": "<?= $api_key ?>"
                     }
                 }).then(res => res.json()).then(data => {
+                    this.fetchingStatus = false;
                     $('#status-table').DataTable().destroy();
                     this.ticketStates = data;
                     Vue.nextTick(() => {
@@ -503,6 +520,7 @@
             },
             submitUpdateStatusForm() {
                 this.loading();
+                this.submittingStatus = true;
                 if (!this.stateStatus) {
                     toastr.error('No status selected');
                     return;
@@ -516,10 +534,10 @@
 
                 if (this.stateStatus === 'Reassign') {
 
-                  
-                        formdata.append('reassigned_user', this.data.user_id ?? null);
-                        formdata.append('assign_by', this.selectedAssign ?? null);
-                   
+
+                    formdata.append('reassigned_user', this.data.user_id ?? null);
+                    formdata.append('assign_by', this.selectedAssign ?? null);
+
 
 
                     if (this.selectedAssign === 'group') {
@@ -535,6 +553,7 @@
                         "X-API-Key": "<?= $api_key ?>"
                     }
                 }).then(res => res.json()).then(data => {
+                    this.submittingStatus = false;
                     this.loading(false);
                     if (data.status === 'success') {
                         this.fetchTicketStates(this.ticket.ticket_id);
@@ -779,10 +798,6 @@
                     this.enableSearchDepartments = false;
                 }
             },
-            // togglePage(url) {
-            //     this.page = url.replace('/?page=', '');
-            //     this.filterTickets();
-            // },
             ai(action = null, status = null) {
 
                 if (!this.data.description && !this.stateDetails) {
@@ -868,13 +883,42 @@
             handleFormatCash() {
                 this.data.amount = this.formatCash();
             },
-            additionalInfo(ticket) {
-                if (ticket.claimant_name) {
-                    return `
-                    <span><strong>Claimant Name:</strong> ${ticket.claimant_name}</span> <br>
-                    <span><strong>Client Name:</strong> ${ticket.client_name}</span> <br>
-                    <span><strong>Amount:</strong> ₱${ticket.amount}</span> 
-                    `;
+            additionalInfo(info, html = null) {
+                if (info) {
+                    if (html === 'table') {
+                        return `
+                        <table class="table table-bordered table-sm" id="example1">
+                            <tbody>
+                                <tr>
+                                <th scope="row">Claimant Name</th>
+                                <td>${info.claimant_name}</td>
+                                </tr>
+                                <tr>
+                                <th scope="row">Client Name</th>
+                                <td>${info.client_name}</td>
+                                </tr>
+                                <tr>
+                                <th scope="row">Contact No.</th>
+                                <td>${info.contact_no}</td>
+                                </tr>
+                                <tr>
+                                <th scope="row">Particulars</th>
+                                <td>${info.particulars}</td>
+                                </tr>
+                                <tr>
+                                <th scope="row">Amount</th>
+                                <td>₱${info.amount}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        `;
+                    } else {
+                        return `<span><strong>Claimant Name:</strong> ${info.claimant_name}</span> <br>
+                    <span><strong>Client Name:</strong> ${info.client_name}</span> <br>
+                    <span><strong>Contact No.:</strong> ${info.contact_no}</span> <br>
+                    <span><strong>Particulars:</strong> ${info.particulars}</span> <br>
+                    <span><strong>Amount:</strong> ₱${info.amount}</span> `
+                    }
                 }
 
                 return 'No additional info';

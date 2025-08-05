@@ -63,7 +63,6 @@ if (permission(str_replace('/', '', $route), 'r', $session_user->role) == false 
 
 
 
-
 if ($route === '/dashboard') {
   include __DIR__ . '/resources/components/header.php';
   include __DIR__ . '/resources/views/dashboard.php';
@@ -171,4 +170,20 @@ if ($route === '/groups') {
 
 if ($route === '/logout') {
   header('Location: api/logout.php');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+function route($route = null, $views = null)
+{
+  return __DIR__ . '/resources/views/' . $views;
 }

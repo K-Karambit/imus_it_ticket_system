@@ -121,6 +121,12 @@ if ($action === 'update') {
             $storage_path    = ROOT . "/api/storage";
             $current_profile = "$storage_path/$user->profile";
 
+            $sizeInMB = $file['size'] / (1024 * 1024);
+
+            if ($sizeInMB >= 2) {
+                echo json_encode(['status' => 'error', 'message' => 'The file size must be at least 2 MB.']);
+                return;
+            }
 
             if (!in_array(strtolower($file_ext), $imageExtensions)) {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid file format.']);

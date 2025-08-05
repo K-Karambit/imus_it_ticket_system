@@ -102,7 +102,7 @@ if ($_GET['action'] === 'submit') {
     $activity->addActivityLog('ticket', "update ticket #$ticket_id status to $status");
 
     try {
-        $capsule::beginTransaction();
+        //     $capsule::beginTransaction();
 
         $ticket->save();
         $state->save();
@@ -124,11 +124,11 @@ if ($_GET['action'] === 'submit') {
         }
 
 
-        $capsule::commit();
+        //  $capsule::commit();
 
         echo json_encode(['status' => 'success', 'message' => 'Ticket status submitted successfully.']);
     } catch (PDOException $e) {
-        $capsule::rollBack();
+        //   $capsule::rollBack();
         echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
     }
 }
