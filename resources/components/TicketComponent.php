@@ -125,25 +125,27 @@
                                             </ul>
                                         </div>
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="status" class="form-label text-muted">Users</label>
-                                        <div class="dropdown">
-                                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-truncate" type="button" data-toggle="dropdown" aria-expanded="false">
-                                                Users
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <div class="px-2 py-1"><input type="text" v-model="searchUsersInput" placeholder="Search..." class="form-control form-control-sm"></div>
-                                                </li>
-                                                <li v-for="user in users" :key="user.id" :hidden="!user.full_name.toLowerCase().includes(searchUsersInput.toLowerCase())">
-                                                    <a class="dropdown-item" href="#">
-                                                        <input type="checkbox" :id="'user-' + user.id" :value="user.user_id" v-model="selectedUsers" class="me-2">
-                                                        {{ user.full_name }}
-                                                    </a>
-                                                </li>
-                                            </ul>
+                                    <?php if (!in_array($route, ['/profile', '/home'])) : ?>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="status" class="form-label text-muted">Users</label>
+                                            <div class="dropdown">
+                                                <button class="btn btn-outline-secondary dropdown-toggle w-100 text-truncate" type="button" data-toggle="dropdown" aria-expanded="false">
+                                                    Users
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <div class="px-2 py-1"><input type="text" v-model="searchUsersInput" placeholder="Search..." class="form-control form-control-sm"></div>
+                                                    </li>
+                                                    <li v-for="user in users" :key="user.id" :hidden="!user.full_name.toLowerCase().includes(searchUsersInput.toLowerCase())">
+                                                        <a class="dropdown-item" href="#">
+                                                            <input type="checkbox" :id="'user-' + user.id" :value="user.user_id" v-model="selectedUsers" class="me-2">
+                                                            {{ user.full_name }}
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
                                         </div>
-                                    </div>
+                                    <?php endif   ?>
                                 </div>
                             </div>
 
