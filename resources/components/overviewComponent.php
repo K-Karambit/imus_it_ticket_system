@@ -55,7 +55,7 @@
                 const params = new URLSearchParams(window.location.search);
                 const id = params.get('id');
 
-                fetch(`<?= $api ?>/tickets.php?action=overview&id=${id}`, {
+                fetch(`<?= $api ?>/tickets.php?action=userTicketCounts&id=${id}`, {
                     method: 'get',
                     headers: {
                         "X-API-Key": "<?= $api_key ?>"

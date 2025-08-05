@@ -525,3 +525,61 @@ if ($action === 'counts') {
 
     echo json_encode($data);
 }
+
+
+
+
+
+
+if ($action === 'userTicketCounts') {
+    $user_id = $_GET['id'] !== 'null' ? $_GET['id'] : $session->user_id;
+
+    if (!$user_id) {
+        http_response_code(404);
+    }
+
+    $totalTicketsToday = $totalInProgressTickets = $totalNewTickets = 0;
+
+    $tickets = Ticket::query();
+    $tickets->where('user_id', $user_id);
+
+    if (!$session->is_super_admin) {
+        $groupId = $session->group_id;
+
+        $ticketIdsArray = DB::table('tickets')
+            ->select(DB::raw("ticket_id COLLATE utf8mb4_unicode_ci as ticket_id"))
+            ->where('group_id', $groupId)
+            ->union(
+                DB::table('ticket_old_groups')
+                    ->select(DB::raw("ticket_id COLLATE utf8mb4_unicode_ci as ticket_id"))
+                    ->where('group_id', $groupId)
+            )
+            ->pluck('ticket_id')
+            ->unique()
+            ->toArray();
+
+        $tickets->whereIn('ticket_id', $ticketIdsArray);
+    }
+
+    $result = $tickets->get();
+
+    foreach ($result as $row) {
+        if ($row->status === 'New') {
+            $totalNewTickets++;
+        }
+        if ($row->status === 'In Progress') {
+            $totalInProgressTickets++;
+        }
+        if (now()->format('Y-m-d') == Carbon::parse($row->created_at)->format('Y-m-d')) {
+            $totalTicketsToday++;
+        }
+    }
+
+    $data = [
+        'today' => $totalTicketsToday,
+        'inProgress' => $totalInProgressTickets,
+        'new' => $totalNewTickets,
+    ];
+
+    echo json_encode($data);
+}

@@ -946,6 +946,15 @@
             },
             togglePerPage() {
                 this.filterTickets();
+            },
+            fetchUserTicketCounts() {
+                axios.get('<?= $api ?>/ticket.php?action=userTicketCounts', {
+                    headers: {
+                        "X-API-Key": "<?= $api_key ?>"
+                    }
+                }).then(res => {
+                    console.log(res.data);
+                })
             }
         },
         mounted() {
