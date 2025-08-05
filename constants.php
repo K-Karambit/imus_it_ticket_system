@@ -1,6 +1,5 @@
 <?php
 
-
 define('API', 'https://imus-it-ticket-system.azurewebsites.net/api/');
 define('API_KEY', 'joshbakla');
 
