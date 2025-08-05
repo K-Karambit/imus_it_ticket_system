@@ -495,7 +495,7 @@
             },
             fetchTicketStates(id) {
                 this.fetchingStatus = true;
-                this.ticketStates = [];
+                //    this.ticketStates = [];
                 fetch('<?= $api ?>/states.php?action=get&id=' + id, {
                     method: 'GET',
                     headers: {
