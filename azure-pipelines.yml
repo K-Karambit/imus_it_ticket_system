@@ -22,7 +22,7 @@ stages:
       - job: BuildJob
         displayName: 'Build Job'
         pool:
-          name: my-personal-computer
+          name: ubuntu-latest
         steps:
           - script: |
               sudo update-alternatives --set php /usr/bin/php$(phpVersion)
