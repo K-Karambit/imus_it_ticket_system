@@ -49,6 +49,7 @@
 
   <script src="plugins/axios/axios.min.js"></script>
 
+  <script src="https://unpkg.com/swapy/dist/swapy.min.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Montserrat:wght@500;700&display=swap');
@@ -56,45 +57,49 @@
 
     * {
       font-family: Arial, Helvetica, sans-serif;
+      font-size: 15px;
       /* Default font for body text */
     }
 
 
     /* Override toastr message text size */
     .toast-message {
-      font-size: 17px;
+      font-size: 15px;
       /* Change this value to adjust the size */
     }
 
     .content-wrapper {
       overflow: hidden;
     }
-  </style>
-  <style>
-    /* Main Sidebar */
-    #main-sidebar .nav-link {
-      padding: 10px 15px;
-      /* Removed the transition property */
+
+    .modal-fullscreen {
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      max-width: none;
     }
 
-    #main-sidebar .nav-link:hover {
-      /* Set hover color to be the same as default */
-      background-color: transparent;
-      border-radius: 5px;
+    .modal-fullscreen .modal-content {
+      height: 100%;
+      border-radius: 0;
     }
 
-    #main-sidebar .nav-link.active {
-      background-color: #0d6efd;
-      /* Keep the active color */
-      border-radius: 5px;
+    .modal-body {
+      overflow-y: auto;
     }
 
-    /* Dropdown Menu */
-    .dropdown-menu-dark a.dropdown-item:hover {
-      /* Set hover color to be the same as default */
-      background-color: transparent;
+    .pace .pace-progress {
+
+      height: 3px !important;
+    }
+
+    /* .main-header {
+      background-color: #602588ff;
+    }
+
+    .nav-link {
       color: #fff;
-    }
+    } */
   </style>
 </head>
 
@@ -106,69 +111,3 @@
       <?php include __DIR__ . '/../../resources/components/navbar.php' ?>
       <?php include __DIR__ . '/../../resources/components/sidebar.php' ?>
     </div>
-
-
-    <style>
-      [type='text'],
-      .btn-primary,
-      .btn-danger,
-      .btn-info,
-      .form-control,
-      .table {
-        border-radius: 0px;
-      }
-
-      .nav-link:hover {
-        background: none;
-        color: #000;
-      }
-    </style>
-
-
-    <!-- Custom CSS -->
-    <style>
-      .modal-fullscreen {
-        width: 100vw;
-        height: 100vh;
-        margin: 0;
-        max-width: none;
-      }
-
-      .modal-fullscreen .modal-content {
-        height: 100%;
-        border-radius: 0;
-      }
-
-      .modal-body {
-        overflow-y: auto;
-      }
-    </style>
-    <!-- <script>
-      $(document).ready(function() {
-        $('select').chosen({
-          width: '200px',
-          no_results_text: "Oops, nothing found!"
-        });
-      });
-    </script> -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <style>
-      .pace .pace-progress {
-
-        height: 3px !important;
-        /* Adjust this value to your desired height */
-      }
-    </style>

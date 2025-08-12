@@ -7,10 +7,10 @@
                     <div class="d-flex justify-content-between align-items-center flex-wrap">
                         <div class="d-flex align-items-center mb-2 mb-lg-0">
                             <div class="btn-group" role="group" aria-label="Ticket Actions">
-                                <button @click="$('#addTicketModal').modal('show')" class="btn btn-success">
+                                <button @click.prevent="toggleAddTicketModal" class="btn btn-success">
                                     <i class="fa fa-plus"></i> Add Ticket
                                 </button>
-                                <button @click="$('#fileNameModal').modal('show')" class="btn btn-outline-info" :disabled="tickets.length == 0">
+                                <button @click.prevent="$('#fileNameModal').modal('show')" class="btn btn-outline-info" :disabled="tickets.length == 0">
                                     <i class="fa fa-download"></i> Export
                                 </button>
                                 <button class="btn btn-primary" data-toggle="collapse" href="#filterCollapse" role="button" aria-expanded="false" aria-controls="filterCollapse">
@@ -240,6 +240,7 @@
     <?php include __DIR__ . '/../components/modals/addTicketModal.php';  ?>
     <?php include __DIR__ . '/../components/modals/updateTicketStatusModal.php';  ?>
     <?php include __DIR__ . '/../components/modals/ticketDetailsModal.php';  ?>
+    <?php include __DIR__ . '/../components/modals/unsavedModal.php';  ?>
 
     <div class="modal" id="fileNameModal" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -455,7 +456,7 @@
                     if (data.status === 'success') {
                         toastr.success(data.message);
                         this.filterTickets();
-
+                        sessionStorage.removeItem('add-ticket-unsave-data-<?= $session_user->user_id ?>')
                         $('#addTicketModal').modal('hide');
                         this.data = {
                             department: '',
@@ -955,7 +956,80 @@
                 }).then(res => {
                     console.log(res.data);
                 })
-            }
+            },
+            storeUnsaveInfo() {
+                setInterval(() => {
+                    if (this.data.subject) {
+                        sessionStorage.setItem('add-ticket-unsave-data-<?= $session_user->user_id ?>', JSON.stringify(this.data));
+                    }
+                    if (this.stateDetails) {
+                        const currentData = {
+                            stateStatus: this.stateStatus,
+                            selectedAssign: this.selectedAssign,
+                            userId: this.data.user_id,
+                            reassign_to_group_id: this.data.reassign_to_group_id,
+                            stateDetails: this.stateDetails,
+                            ticketId: this.ticket.ticket_id,
+                        };
+                        sessionStorage.setItem('update-status-unsave-data-<?= $session_user->user_id ?>', JSON.stringify(currentData));
+                    }
+                }, 1000);
+            },
+            checkUnsaveDataInStorage(content) {
+                if (content === 'addTicket') {
+                    const addTicketUnsaveData = sessionStorage.getItem('add-ticket-unsave-data-<?= $session_user->user_id ?>');
+                    if (addTicketUnsaveData) {
+                        $('#addTicketUnsavedModal').modal('show');
+                    }
+                }
+                if (content === 'updateStatus') {
+                    const updateStatusUnsaveData = sessionStorage.getItem('update-status-unsave-data-<?= $session_user->user_id ?>');
+                    if (updateStatusUnsaveData) {
+                        const parsedData = JSON.parse(updateStatusUnsaveData);
+                        if (parsedData.ticketId == this.ticket.ticket_id) {
+                            $('#updateStatusUnsavedModal').modal('show');
+                        }
+                    }
+                }
+            },
+            toggleAddTicketModal() {
+                this.checkUnsaveDataInStorage('addTicket');
+                $('#addTicketModal').modal('show');
+            },
+            toggleUpdateStatusModal() {
+                this.checkUnsaveDataInStorage('updateStatus');
+                $('#updateStatusModal').modal('show');
+                $('#ticketDetailsModal').modal('hide');
+            },
+            toggleContinueUnsavedChanges(answer, content) {
+                if (answer === 'yes') {
+                    if (content === 'addTicket') {
+                        const addTicketUnsaveData = sessionStorage.getItem('add-ticket-unsave-data-<?= $session_user->user_id ?>');
+                        const parsedData = JSON.parse(addTicketUnsaveData);
+                        this.data = parsedData;
+                        $('#addTicketUnsavedModal').modal('hide');
+                    }
+                    if (content === 'updateStatus') {
+                        const updateStatusUnsaveData = sessionStorage.getItem('update-status-unsave-data-<?= $session_user->user_id ?>');
+                        const parsedData = JSON.parse(updateStatusUnsaveData);
+                        this.stateStatus = parsedData.stateStatus;
+                        this.selectedAssign = parsedData.selectedAssign;
+                        this.data.user_id = parsedData.userId;
+                        this.data.reassign_to_group_id = parsedData.reassign_to_group_id;
+                        this.stateDetails = parsedData.stateDetails;
+                        this.ticket.ticket_id = parsedData.ticketId;
+                        $('#updateStatusUnsavedModal').modal('hide');
+                    }
+                } else {
+                    if (content === 'addTicket') {
+                        sessionStorage.removeItem('add-ticket-unsave-data-<?= $session_user->user_id ?>');
+                        $('#addTicketUnsavedModal').modal('hide');
+                    }
+                    if (content === 'updateStatus') {
+                        sessionStorage.removeItem('update-status-unsave-data-<?= $session_user->user_id ?>');
+                    }
+                }
+            },
         },
         mounted() {
             this.filterTickets();
@@ -963,6 +1037,7 @@
             this.fetchDepartments();
             this.fetchCategories();
             this.fetchGroups();
+            this.storeUnsaveInfo();
         },
         computed: {
             filteredGroups() {

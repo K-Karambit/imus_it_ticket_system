@@ -1,310 +1,156 @@
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-light elevation-4" id="sidebar-section">
   <!-- Brand Logo -->
-  <a href="/dashboard" class="brand-link route-link" title="<?= $page_info->sys_name ?? null ?>">
-    <img src="api/storage/it_logo.png" alt="CITRMU Logo" class="brand-image img-circle elevation-3"
-      style="opacity: .8">
-    <span class="brand-text font-weight-light sys-name"><?= $page_info->sys_name ?? null ?></span>
+  <a href="/dashboard" class="brand-link route-link" title="<?= $page_info->sys_name ?? '' ?>">
+    <img src="api/storage/it_logo.png" alt="CITRMU Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+    <span class="brand-text font-weight-light sys-name"><?= $page_info->sys_name ?? '' ?></span>
   </a>
 
-  <!-- Sidebar -->
   <div class="sidebar">
-    <!-- Sidebar user (optional) -->
-    <!-- <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-      <div class="image">
-        <img src="<?= $session_user->user_profile ?>" class="img-circle elevation-2"
-          alt="User Image">
-      </div>
-      <div class="info">
-        <a href="/home" class="d-block route-link"><?= $session_user->full_name ?></a>
-      </div>
-    </div> -->
-    <!-- <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-      <div class="image">
-        <a href="#" onclick="logout()" title="Logout"><i class="fas fa-solid fa-sign-out-alt"></i> Logout</a>
-      </div>
-    </div> -->
-
-    <!-- SidebarSearch Form -->
-
-
-    <!-- <div class="form-inline">
-      <div class="input-group" data-widget="sidebar-search">
-        <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
-        <div class="input-group-append">
-          <button class="btn btn-sidebar">
-            <i class="fas fa-search fa-fw"></i>
-          </button>
-        </div>
-      </div>
-    </div> -->
-
-    <style>
-      .nav-link:hover {
-        background: blue;
-      }
-    </style>
-
     <!-- Sidebar Menu -->
     <nav class="mt-2">
+      <ul class="nav nav-pills nav-sidebar flex-column" role="menu" data-accordion="false">
 
-
-
-      <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-
-
-
-
-        <li class="nav-header">HOME</li>
-
-
-
-
-
-
-
+        <li class="nav-header">MAIN</li>
 
         <?php if (permission('dashboard', 'r', $session_user->role)) : ?>
-          <!-- <li class="nav-item">
-            <a href="/dashboard" class="nav-link navlink route-link" title="Dashboard">
+          <li class="nav-item">
+            <a href="/dashboard" class="nav-link route-link" title="Dashboard">
               <i class="nav-icon fas fa-tachometer-alt"></i>
-              <p>
-                Dashboard
-
-              </p>
+              <span>Dashboard</span>
             </a>
-          </li> -->
-        <?php endif;  ?>
+          </li>
+        <?php endif; ?>
 
-
-
-
-
-
-
-
-
-        <?php if (permission('tickets', 'r',  $session_user->role)) : ?>
+        <?php if (permission('tickets', 'r', $session_user->role)) : ?>
           <li class="nav-item">
-            <a href="/tickets" class="nav-link navlink route-link" title="Tickets">
+            <a href="/tickets" class="nav-link route-link" title="Tickets">
               <i class="nav-icon fas fa-ticket-alt"></i>
-              <p>
-                Tickets
-                <span class="badge badge-danger right" id="new-ticket-count" title="New Tickets">0</span>
-              </p>
+              <span>Tickets</span>
+              <span class="badge badge-danger right" id="new-ticket-count" title="New Tickets">0</span>
             </a>
           </li>
-        <?php endif;  ?>
+        <?php endif; ?>
 
-
-
-
-
-
-        <?php if (permission('departments', 'r',  $session_user->role)) : ?>
+        <?php if (permission('departments', 'r', $session_user->role)) : ?>
           <li class="nav-item">
-            <a href="/departments" class="nav-link navlink route-link" title="Departments">
+            <a href="/departments" class="nav-link route-link" title="Departments">
               <i class="nav-icon fas fa-building"></i>
-              <p>
-                Departments
-                <!-- <span class="badge badge-info right">2</span> -->
-              </p>
+              <span>Departments</span>
             </a>
           </li>
-        <?php endif;  ?>
+        <?php endif; ?>
 
-
-
-
-
-
-        <?php if (permission('category', 'r',   $session_user->role)) : ?>
+        <?php if (permission('category', 'r', $session_user->role)) : ?>
           <li class="nav-item">
-            <a href="/category" class="nav-link navlink route-link" title="Category">
+            <a href="/category" class="nav-link route-link" title="Category">
               <i class="nav-icon fas fa-list"></i>
-              <p>
-                Category
-                <!-- <span class="badge badge-info right">2</span> -->
-              </p>
+              <span>Category</span>
             </a>
           </li>
-        <?php endif;  ?>
+        <?php endif; ?>
 
-
-
-
-
-
-
-
-
-        <?php if (permission('users', 'r',   $session_user->role)) : ?>
+        <?php if (permission('users', 'r', $session_user->role)) : ?>
           <li class="nav-item">
-            <a href="/users" class="nav-link navlink route-link" title="Users">
+            <a href="/users" class="nav-link route-link" title="Users">
               <i class="nav-icon fas fa-users"></i>
-              <p>
-                Users
-                <!-- <span class="badge badge-info right">2</span> -->
-              </p>
+              <span>Users</span>
             </a>
           </li>
-        <?php endif;  ?>
+        <?php endif; ?>
 
-
-
-
-
-        <?php if (permission('groups', 'r',   $session_user->role)) : ?>
+        <?php if (permission('groups', 'r', $session_user->role)) : ?>
           <li class="nav-item">
-            <a href="/groups" class="nav-link navlink route-link" title="Users">
+            <a href="/groups" class="nav-link route-link" title="Groups">
               <i class="nav-icon fas fa-users"></i>
-              <p>
-                Groups
-              </p>
+              <span>Groups</span>
             </a>
           </li>
-        <?php endif;  ?>
+        <?php endif; ?>
 
-
-
-
-
-
-
-        <?php if (permission('activity logs', 'r',   $session_user->role)) : ?>
-          <li class="nav-item module-btn">
-            <a href="/logs" class="nav-link navlink route-link" title="Activity Logs">
+        <?php if (permission('activity logs', 'r', $session_user->role)) : ?>
+          <li class="nav-item">
+            <a href="/logs" class="nav-link route-link" title="Activity Logs">
               <i class="nav-icon fas fa-history"></i>
-              <p>
-                Activity Logs
-                <!-- <span class="badge badge-info right">2</span> -->
-              </p>
+              <span>Activity Logs</span>
             </a>
           </li>
-        <?php endif;  ?>
+        <?php endif; ?>
 
+        <?php if (permission('roles', 'r', $session_user->role) || permission('settings', 'r', $session_user->role)) : ?>
+          <li class="nav-header mt-3">CONFIGURATION</li>
+        <?php endif; ?>
 
-
-
-
-
-
-
-        <!-- <li class="nav-item">
-          <a href="#" class="nav-link">
-            <i class="nav-icon far fa-envelope"></i>
-            <p>
-              Mailbox
-              <i class="fas fa-angle-left right"></i>
-            </p>
-          </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="../mailbox/mailbox.html" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Inbox</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="../mailbox/compose.html" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Compose</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="../mailbox/read-mail.html" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Read</p>
-              </a>
-            </li>
-          </ul>
-        </li> -->
-
-      </ul>
-    </nav>
-
-
-
-
-    <nav class="mt-2">
-      <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-
-        <?php if (!permission('roles', 'r',  $session_user->role) == false && !permission('settings', 'r',  $session_user->role) == false) : ?>
-          <li class="nav-header">Configuration</li>
-        <?php endif;  ?>
-
-
-
-        <?php if (permission('roles', 'r',   $session_user->role)) : ?>
+        <?php if (permission('roles', 'r', $session_user->role)) : ?>
           <li class="nav-item">
-            <a href="/roles" class="nav-link navlink route-link" title="Roles">
+            <a href="/roles" class="nav-link route-link" title="Roles">
               <i class="nav-icon fas fa-user-shield"></i>
-              <p>
-                Roles
-                <!-- <span class="badge badge-info right">2</span> -->
-              </p>
+              <span>Roles</span>
             </a>
           </li>
-        <?php endif;  ?>
+        <?php endif; ?>
 
-
-
+        <?php if (permission('settings', 'r', $session_user->role)) : ?>
+          <li class="nav-item">
+            <a href="/settings" class="nav-link route-link" title="Settings">
+              <i class="nav-icon fas fa-cogs"></i>
+              <span>Settings</span>
+            </a>
+          </li>
+        <?php endif; ?>
 
       </ul>
     </nav>
-
-
   </div>
 </aside>
 
-
-
-
-
-
+<style>
+  .nav-link.active, .nav-link:hover {
+    background: #007bff !important;
+    color: #fff !important;
+  }
+  .nav-header {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #343a40;
+    margin-top: 1.5em;
+    margin-bottom: .5em;
+    padding-left: 1em;
+  }
+  .nav-link span {
+    margin-left: 8px;
+  }
+</style>
 
 <script type="text/javascript">
-  const currentLink = new URL(window.location.href).searchParams.get('route');
+  // Highlight active link based on route
+  const currentRoute = new URL(window.location.href).searchParams.get('route') || '/dashboard';
   document.querySelectorAll('.route-link').forEach(link => {
-    if (link.getAttribute('href') == currentLink) {
+    if (link.getAttribute('href') === currentRoute) {
       link.classList.add('active');
-      document.querySelector('title').textContent = 'CITRMU | ' + link.textContent.replace('0', '');
+      document.title = 'CITRMU | ' + link.textContent.trim();
     }
   });
-</script>
 
-
-
-
-
-
-<script type="text/javascript">
-  const routerLinks = document.querySelectorAll('.route-link');
-  routerLinks.forEach((item) => {
+  // SPA-like navigation
+  document.querySelectorAll('.route-link').forEach(item => {
     item.addEventListener('click', function(e) {
       e.preventDefault();
       window.location.href = '?route=' + item.getAttribute('href');
     });
   });
-</script>
 
-
-
-
-
-
-<script>
+  // Update new ticket count badge
   function getNewTickets() {
     fetch('<?= $api ?>/tickets.php?action=counts', {
       method: 'get',
-      headers: {
-        "X-API-Key": "<?= $api_key ?>"
-      }
-    }).then(res => res.json()).then(data => {
-      document.querySelector('#new-ticket-count').textContent = data.new;
-    }).catch(error => {
-      console.error('error', error);
+      headers: { "X-API-Key": "<?= $api_key ?>" }
     })
+    .then(res => res.json())
+    .then(data => {
+      document.querySelector('#new-ticket-count').textContent = data.new;
+    })
+    .catch(error => console.error('error', error));
   }
   getNewTickets();
 </script>

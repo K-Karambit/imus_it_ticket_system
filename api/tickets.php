@@ -13,6 +13,7 @@ use Illuminate\Support\Carbon;
 use Models\Notification;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Models\TicketAdditionalInfo;
+use Illuminate\Support\Facades\Cache;
 
 $activity = new Activity();
 $helper = new Helper();
@@ -375,22 +376,6 @@ if ($action === 'export') {
     exit;
 }
 
-
-
-
-
-
-
-if ($action === 'department_report') {
-    $countsPerMonth = DB::table('tickets')->join('departments', 'departments.id', '=', 'tickets.department')->selectRaw('departments.name, COUNT(*) as count')->groupBy('department')->get();
-    echo json_encode($countsPerMonth);
-}
-
-
-
-
-
-
 if ($action === 'update_urgency') {
     $ticket = Ticket::find($_GET['id']);
 
@@ -406,15 +391,6 @@ if ($action === 'update_urgency') {
 
     echo json_encode(['status' => 'success', 'message' => 'Ticket urgency updated successfully.']);
 }
-
-
-
-
-
-
-
-
-
 
 if ($action === 'update_category') {
     $ticket = Ticket::find($_GET['id']);
@@ -432,11 +408,6 @@ if ($action === 'update_category') {
     echo json_encode(['status' => 'success', 'message' => 'Ticket category updated successfully.']);
 }
 
-
-
-
-
-
 if ($action === 'update_department') {
     $ticket = Ticket::find($_GET['id']);
 
@@ -453,11 +424,10 @@ if ($action === 'update_department') {
     echo json_encode(['status' => 'success', 'message' => 'Ticket department updated successfully.']);
 }
 
-
-
 if ($action === 'counts') {
     $baseQuery = Ticket::query();
     $now = Carbon::now(); // Get current time once
+    $selectedYear = $_GET['y'] ?? null;
 
     if (!$session->is_super_admin) {
         $groupId = $session->group_id;
@@ -476,6 +446,10 @@ if ($action === 'counts') {
 
         // Apply filter
         $baseQuery->whereIn('ticket_id', $ticketIdsArray);
+    }
+
+    if ($selectedYear) {
+        $baseQuery->whereYear('created_at', $selectedYear);
     }
 
     $newTickets = $baseQuery->clone()->where('status', 'New')->count();
@@ -525,11 +499,6 @@ if ($action === 'counts') {
 
     echo json_encode($data);
 }
-
-
-
-
-
 
 if ($action === 'userTicketCounts') {
     $user_id = $_GET['id'] !== 'null' ? $_GET['id'] : $session->user_id;
@@ -582,4 +551,129 @@ if ($action === 'userTicketCounts') {
     ];
 
     echo json_encode($data);
+}
+
+
+if ($action === 'monthlyReports') {
+    // Sanitize and validate the date inputs
+    $startDate = $_GET['start_date'] ?? null;
+    $endDate = $_GET['end_date'] ?? null;
+    $selectedYear = $_GET['y'] ?? null;
+
+    // Build the base query for tickets
+    // This should be a fresh query builder instance for each report type.
+    $baseTicketsQuery = DB::table('tickets');
+
+    if (!$session->is_super_admin) {
+        $groupId = $session->group_id;
+
+        $ticketIds = DB::table('tickets')
+            ->select(DB::raw("ticket_id COLLATE utf8mb4_unicode_ci as ticket_id"))
+            ->where('group_id', $groupId)
+            ->union(
+                DB::table('ticket_old_groups')
+                    ->select(DB::raw("ticket_id COLLATE utf8mb4_unicode_ci as ticket_id"))
+                    ->where('group_id', $groupId)
+            )
+            ->pluck('ticket_id')
+            ->unique()
+            ->toArray();
+
+        $baseTicketsQuery->whereIn('ticket_id', $ticketIds);
+    }
+
+    // Validate date format (Y-m-d)
+    $startDateValid = DateTime::createFromFormat('Y-m-d', $startDate) !== false;
+    $endDateValid = DateTime::createFromFormat('Y-m-d', $endDate) !== false;
+
+    // Create clones of the base query for each report
+    $monthlyCountsQuery = clone $baseTicketsQuery;
+    $monthlyStatusCountsQuery = clone $baseTicketsQuery;
+
+    // Apply date filters if valid
+    // if ($startDate && $endDate && $startDateValid && $endDateValid) {
+    //     $monthlyCountsQuery->whereBetween('created_at', [$startDate, $endDate]);
+    //     $monthlyStatusCountsQuery->whereBetween('created_at', [$startDate, $endDate]);
+    // }
+
+    if ($selectedYear) {
+        $monthlyCountsQuery->whereYear('created_at', $selectedYear);
+        $monthlyStatusCountsQuery->whereYear('created_at', $selectedYear);
+    }
+
+    // Finish building the monthly counts query
+    $monthlyCountsQuery
+        ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, COUNT(*) as count')
+        ->selectRaw('ticket_id')
+        ->groupByRaw('DATE_FORMAT(created_at, "%Y-%m")')
+        ->orderByRaw('MIN(created_at)');
+
+    // Finish building the status counts query
+    $monthlyStatusCountsQuery
+        ->selectRaw('status, COUNT(*) as count')
+        ->selectRaw('ticket_id')
+        ->groupBy('status');
+
+    // Execute the queries
+    $monthlyResults = $monthlyCountsQuery->get();
+    $statusResults = $monthlyStatusCountsQuery->get();
+
+    // Prepare chart data
+    $ticketLabels = [];
+    $ticketData = [];
+    $statusCountsLabels = [];
+    $statusCountsData = [];
+    $ids = [];
+
+    foreach ($monthlyResults as $result) {
+        if (!empty($result->month)) {
+            // Use Carbon to format the month
+            $formattedMonth = Carbon::createFromFormat('Y-m', $result->month)->format('F');
+            $ticketLabels[] = $formattedMonth;
+            $ticketData[] = $result->count;
+            $ids[] = $result->ticket_id;
+        }
+    }
+
+    // Limit to known statuses
+    $allowedStatusLabels = ['New', 'In Progress', 'Resolved', 'On Hold', 'Cancelled'];
+
+    foreach ($statusResults as $row) {
+        if (in_array($row->status, $allowedStatusLabels)) {
+            $statusCountsLabels[] = $row->status;
+            $statusCountsData[] = $row->count;
+        }
+    }
+
+    // Prepare response
+    $output = [
+        'ticketLabels' => $ticketLabels,
+        'ticketData' => $ticketData,
+        'statusCountsLabels' => $statusCountsLabels,
+        'statusCountsData' => $statusCountsData,
+    ];
+
+    // Get and add unresolved ticket counts
+    $unresolvedQuery = clone $baseTicketsQuery;
+    if ($startDate && $endDate && $startDateValid && $endDateValid) {
+        $unresolvedQuery->whereBetween('created_at', [$startDate, $endDate]);
+    }
+
+    $threeDaysUnresolved = $unresolvedQuery
+        ->where('status', '!=', 'Resolved')
+        ->where('created_at', '<', Carbon::now()->subDays(3))
+        ->count();
+
+    $oneWeekUnresolved = $unresolvedQuery
+        ->where('status', '!=', 'Resolved')
+        ->where('created_at', '<', Carbon::now()->subWeek())
+        ->count();
+
+    $output['unresolved3Days'] = $threeDaysUnresolved;
+    $output['unresolved7Days'] = $oneWeekUnresolved;
+    $output['statusColors'] = ['#28A745', '#17A2B8', '#6C757D', '#FFC107', '#007BFF'];
+    $output['ids'] = $ids;
+
+    // Return final JSON response
+    echo json_encode($output);
 }

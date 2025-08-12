@@ -91,7 +91,7 @@
                         <!-- <button class="btn btn-secondary" data-dismiss="modal">Close</button> -->
                         <?php if (permission('tickets', 'w', $session_user->role)) : ?>
                             <div v-if="!['Cancelled'].includes(ticket.status)">
-                                <button class="btn btn-primary" href="#updateStatusModal" data-toggle="modal" @click="$('#ticketDetailsModal').modal('hide')">
+                                <button class="btn btn-primary" href="#updateStatusModal" data-toggle="modal" @click="toggleUpdateStatusModal">
                                     Update
                                 </button>
                             </div>

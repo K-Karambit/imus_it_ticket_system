@@ -43,145 +43,45 @@ function permission(string $module, string $access, string $role): bool
 
 $route = $_GET['route'] ?? null;
 
-if ($session_user == null) {
-  include __DIR__ . '/resources/views/login.php';
-  exit;
-}
-if ($route == null) {
+if ($session_user == null || $route == null) {
   include __DIR__ . '/resources/views/login.php';
   exit;
 }
 
+$routes = [
+  '/dashboard'   => 'dashboard.php',
+  '/tickets'     => 'tickets.php',
+  '/departments' => 'departments.php',
+  '/roles'       => 'roles.php',
+  '/users'       => 'users/users.php',
+  '/profile'     => 'users/profile.php',
+  '/logs'        => 'logs.php',
+  '/settings'    => 'settings.php',
+  '/home'        => 'users/home.php',
+  '/category'    => 'category.php',
+  '/groups'      => 'groups.php'
+];
 
+if ($route === '/logout') {
+  header('Location: api/logout.php');
+  exit;
+}
 
-
-if (permission(str_replace('/', '', $route), 'r', $session_user->role) == false && $route !== '/home') {
+if (!array_key_exists($route, $routes)) {
   include __DIR__ . '/404.php';
   exit;
 }
 
-
-
-
-if ($route === '/dashboard') {
-  include __DIR__ . '/resources/components/header.php';
-  include __DIR__ . '/resources/views/dashboard.php';
-  include __DIR__ . '/resources/components/footer.php';
+// Permission check (except for /home)
+if ($route !== '/home' && !permission(str_replace('/', '', $route), 'r', $session_user->role)) {
+  include __DIR__ . '/404.php';
   exit;
 }
 
-
-
-
-if ($route === '/tickets') {
-  include __DIR__ . '/resources/components/header.php';
-  include __DIR__ . '/resources/views/tickets.php';
-  include __DIR__ . '/resources/components/footer.php';
-  exit;
-}
-
-
-
-
-if ($route === '/departments') {
-  include __DIR__ . '/resources/components/header.php';
-  include __DIR__ . '/resources/views/departments.php';
-  include __DIR__ . '/resources/components/footer.php';
-  exit;
-}
-
-
-
-if ($route === '/roles') {
-  include __DIR__ . '/resources/components/header.php';
-  include __DIR__ . '/resources/views/roles.php';
-  include __DIR__ . '/resources/components/footer.php';
-  exit;
-}
-
-
-
-if ($route === '/users') {
-  include __DIR__ . '/resources/components/header.php';
-  include __DIR__ . '/resources/views/users/users.php';
-  include __DIR__ . '/resources/components/footer.php';
-  exit;
-}
-
-
-
-
-if ($route === '/profile') {
-  include __DIR__ . '/resources/components/header.php';
-  include __DIR__ . '/resources/views/users/profile.php';
-  include __DIR__ . '/resources/components/footer.php';
-  exit;
-}
-
-
-
-
-if ($route === '/logs') {
-  include __DIR__ . '/resources/components/header.php';
-  include __DIR__ . '/resources/views/logs.php';
-  include __DIR__ . '/resources/components/footer.php';
-  exit;
-}
-
-
-
-
-if ($route === '/settings') {
-  include __DIR__ . '/resources/components/header.php';
-  include __DIR__ . '/resources/views/settings.php';
-  include __DIR__ . '/resources/components/footer.php';
-  exit;
-}
-
-
-
-
-if ($route === '/home') {
-  include __DIR__ . '/resources/components/header.php';
-  include __DIR__ . '/resources/views/users/home.php';
-  include __DIR__ . '/resources/components/footer.php';
-  exit;
-}
-
-
-
-
-if ($route === '/category') {
-  include __DIR__ . '/resources/components/header.php';
-  include __DIR__ . '/resources/views/category.php';
-  include __DIR__ . '/resources/components/footer.php';
-  exit;
-}
-
-
-
-if ($route === '/groups') {
-  include __DIR__ . '/resources/components/header.php';
-  include __DIR__ . '/resources/views/groups.php';
-  include __DIR__ . '/resources/components/footer.php';
-  exit;
-}
-
-
-if ($route === '/logout') {
-  header('Location: api/logout.php');
-}
-
-
-
-
-
-
-
-
-
-
-
+// Render page with header/footer
+include __DIR__ . '/resources/components/header.php';
+include __DIR__ . '/resources/views/' . $routes[$route];
+include __DIR__ . '/resources/components/footer.php';
 
 function route($route = null, $views = null)
 {
